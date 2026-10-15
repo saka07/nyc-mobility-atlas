@@ -389,12 +389,12 @@
     var gateways = [{"name":"East 60th St","entries":79465,"share":15.53,"lng":-73.9632,"lat":40.7618},{"name":"FDR Drive at 60th St","entries":53005,"share":10.36,"lng":-73.9575,"lat":40.7592},{"name":"Lincoln Tunnel","entries":46784,"share":9.14,"lng":-74.0016,"lat":40.7582},{"name":"Queens Midtown Tunnel","entries":46537,"share":9.09,"lng":-73.9698,"lat":40.7445},{"name":"West Side Highway at 60th St","entries":45931,"share":8.97,"lng":-73.9928,"lat":40.7725},{"name":"Holland Tunnel","entries":41440,"share":8.1,"lng":-74.0118,"lat":40.7265},{"name":"Williamsburg Bridge","entries":40196,"share":7.85,"lng":-73.9723,"lat":40.7135},{"name":"West 60th St","entries":39414,"share":7.7,"lng":-73.9875,"lat":40.7702},{"name":"Queensboro Bridge","entries":38869,"share":7.59,"lng":-73.9578,"lat":40.757},{"name":"Manhattan Bridge","entries":29377,"share":5.74,"lng":-73.9908,"lat":40.7075},{"name":"Brooklyn Bridge","entries":27906,"share":5.45,"lng":-73.9969,"lat":40.7061},{"name":"Hugh L. Carey Tunnel","entries":22905,"share":4.48,"lng":-74.0145,"lat":40.7025}];
 
     var map = L.map('map', { scrollWheelZoom: false }).setView([40.735, -73.99], 13);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 18,
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
+      attribution: 'Basemap &copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
     }).addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Basemap &copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
     }).addTo(map);
 
     var zoneLayer = L.geoJSON(zone, {
