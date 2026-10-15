@@ -277,7 +277,7 @@ function initMapLayers() {
     }),
     onEachFeature: (feature, layer) => {
       const p = feature.properties;
-      layer.bindTooltip(`<strong>${p.market_name}</strong><br>${p.total_min} min door to door<br>Walking ${p.walk_min} min &middot; waiting ${p.wait_min} min`, { sticky: true });
+      layer.bindTooltip(`<strong>${p.market_name}</strong><br>${p.total_min} min door to door<br>Walking ${p.walk_min} min &middot; waiting ${p.wait_min} min<br><em>Schematic line, not the actual route</em>`, { sticky: true });
       layer.on('click', () => inspectJourney(p));
     }
   }).addTo(lgJourneys);
@@ -293,7 +293,7 @@ function initMapLayers() {
     }),
     onEachFeature: (feature, layer) => {
       const p = feature.properties;
-      layer.bindTooltip(`<strong>${p.corridor_id}: ${p.name}</strong><br>${p.origin}<br><em>Click for details</em>`, { sticky: true });
+      layer.bindTooltip(`<strong>${p.corridor_id}: ${p.name}</strong><br>${p.origin}<br><em>Schematic line. Click for details</em>`, { sticky: true });
       layer.on('click', () => inspectSolution(p));
     }
   }).addTo(lgSolutions);
@@ -333,7 +333,7 @@ function buildTrafficLayer() {
         <strong>${p.link_name}</strong><br>${p.borough}<br>
         2024: ${s24 !== null ? s24.toFixed(1) + ' mph' : 'n/a'} &rarr; 2025: ${s25 !== null ? s25.toFixed(1) + ' mph' : 'n/a'}<br>
         <strong>Change: ${diff !== null ? (diff > 0 ? '+' : '') + diff.toFixed(1) + ' mph' : 'n/a'}</strong>
-        ${p.is_bqe_deck_repair ? '<br>BQE deck repairs during 2025' : ''}
+        ${p.is_bqe_deck_repair ? '<br>Deck repairs were under way in 2025' : ''}
       `, { sticky: true });
 
       layer.on('click', () => inspectTrafficLink(p, tb));
@@ -537,18 +537,18 @@ const CAR_TRIPS = { Bronx: 102489, Brooklyn: 42408, Queens: 36439, 'Staten Islan
 
 // MODULE 1: Citywide Overview
 function renderOverviewModule() {
-  updateToolbar(toolbarTitle('Citywide overview', 'Five boroughs, the congestion pricing zone and 496 subway stations'));
+  updateToolbar(toolbarTitle('Citywide overview', 'Five boroughs, the congestion pricing zone and 496 subway stations (lines not drawn)'));
   updateLegend(legendBox('On the map', [
     legendRow(box('transparent', `border:2.5px solid ${C.orange};background:rgba(200,83,42,.08)`), 'Congestion pricing zone (south of 60th St)'),
-    legendRow(dot(C.mid), 'Subway station (496)'),
+    legendRow(dot(C.mid), 'Subway station (496); subway lines not drawn'),
     legendRow(line(C.mid), 'Borough boundary')
   ]));
-  updateDrawerHeader('Fix the trip to the train, starting in Eastern Queens', 'Congestion pricing cut traffic. Many outer-borough commuters still drive because the walk, wait and bus to the subway are slow.', 'Overview');
+  updateDrawerHeader('Fix the trip to the train, starting in Eastern Queens', 'Congestion pricing cut traffic. On outer-borough transit trips, walking and waiting add about 13–22 minutes; faster feeder buses and easier transfers can shorten them.', 'Overview');
   updateKPIs([
     { label: 'Fewer vehicles a day', val: '67,000', sub: 'entering the zone (−11%)' },
     { label: 'Zone workers from Brooklyn + Queens', val: '52.8%', sub: '653,842 of 1.24 million' },
     { label: 'Walking and waiting', val: '13–22 min', sub: 'of a typical outer-borough trip' },
-    { label: 'Saved in the model test', val: '6–12.5 min', sub: 'per trip on Union Turnpike' }
+    { label: 'Saved in the model test', val: '6.2–12.5 min', sub: '6 Union Tpke origins → Midtown East, 8 a.m.' }
   ]);
   renderChart('bar', {
     labels: Object.keys(ZONE_JOBS),
@@ -603,8 +603,8 @@ function renderTrafficModule() {
     legendRow(line(C.dark), 'Faster by more than 2 mph'),
     legendRow(line(C.grey), 'Little change (within 2 mph)'),
     legendRow(line(C.orange), 'Slower by more than 2 mph'),
-    legendRow(line(C.brown, true), 'BQE link under deck repair')
-  ], 'Counts in the panel are for the morning peak.'));
+    legendRow(line(C.brown, true), 'BQE link (deck repairs under way in 2025)')
+  ], 'Counts in the panel are for the morning peak. The data shows changes, not their causes.'));
   updateDrawerHeader('Highway speeds barely changed overall', 'Same months (March–June) in 2024 and 2025, NYC DOT sensors', 'Highway speeds');
   updateKPIs([
     { label: 'Roads with good data', val: '80', sub: 'of 122 monitored links' },
@@ -616,7 +616,7 @@ function renderTrafficModule() {
     labels: ['Faster', 'Little change', 'Slower'],
     datasets: [{ label: 'Roads (morning peak)', data: [13, 45, 22], backgroundColor: [C.dark, C.grey, C.orange] }]
   }, 'Morning-peak roads by speed change', 'NYC DOT');
-  setPolicyNote('The median change was −0.4 mph. The BQE slowdown (42 to 22 mph) lines up with deck repairs, not tolling. Speeds alone cannot prove or rule out traffic moving to other roads.');
+  setPolicyNote('');
 }
 
 function setTimeband(tb) {
@@ -686,7 +686,7 @@ function renderOpportunityModule() {
   updateDrawerHeader('Where people still drive to work', 'Share of commuters who drive alone, by census tract (ACS 2018–2022)', 'Car dependence');
   updateKPIs([
     { label: 'Typical tract', val: median.toFixed(1) + '%', sub: 'median share driving alone' },
-    { label: 'Shortlisted tracts', val: fmt(screened), sub: 'far from the subway, many drivers' },
+    { label: 'Shortlisted tracts', val: fmt(screened), sub: 'far from the subway, high drive-alone share' },
     { label: 'East Bronx areas', val: '~57%', sub: 'drive alone (worker-weighted)' },
     { label: 'Eastern Queens areas', val: '~42%', sub: 'drive alone (worker-weighted)' }
   ]);
@@ -726,12 +726,12 @@ function renderBusesModule() {
   const routes = (state.data.busRoutes || []).filter(r => r.speed_mph);
   const avg = routes.reduce((a, r) => a + r.speed_mph, 0) / routes.length;
   const slowest = routes.slice().sort((a, b) => a.speed_mph - b.speed_mph);
-  updateToolbar(toolbarTitle('Bus speeds', `${routes.length} routes measured by the MTA (August 2026)`));
+  updateToolbar(toolbarTitle('Bus speeds', `7 example routes shown as dots; all ${routes.length} measured routes are in the chart`));
   updateLegend(legendBox('On the map', [
     legendRow(dot(C.dark), 'Measured, 7 mph or faster'),
     legendRow(dot(C.orange), 'Measured, slower than 7 mph'),
     legendRow(box('#fff', `border:2px dashed ${C.steel};border-radius:50%`), 'Not measured: Q30 and Bx8')
-  ], 'Dots mark where each route runs; all 29 measured routes are in the chart.'));
+  ], 'Each dot marks one point on a route, not the full route line.'));
   updateDrawerHeader('The feeder buses that matter most are not measured', 'MTA bus speeds and wait assessment, weekday mornings', 'Bus speeds');
   updateKPIs([
     { label: 'Routes measured', val: String(routes.length), sub: 'in the MTA speed data' },
@@ -751,14 +751,14 @@ function renderBusesModule() {
 function renderJourneysModule() {
   const js = state.data.otpJourneys.features.map(f => f.properties);
   const mean = k => js.reduce((a, p) => a + p[k], 0) / js.length;
-  updateToolbar(toolbarTitle('Door-to-door trips', '10 modelled transit trips; three focus trips highlighted'));
+  updateToolbar(toolbarTitle('Door-to-door trips', '10 modelled transit trips; lines are schematic'));
   updateLegend(legendBox('Trips', [
     legendRow(line(C.orange), 'Fresh Meadows → Midtown East (55.6 min)'),
     legendRow(line(C.brown), 'Rosedale → Lower Manhattan (61.9 min)'),
     legendRow(line(C.dark), 'Throggs Neck → Grand Central (71.2 min)'),
     legendRow(line(C.steel), 'Seven other trips')
-  ], 'Lines join start and end; they are not the exact route.'));
-  updateDrawerHeader('Walking and waiting take 13–22 minutes', 'Modelled trips on the fall 2026 schedule, not observed commutes', 'Journeys');
+  ], 'Straight lines join start and end. They are schematic, not the actual bus, subway or rail routes.'));
+  updateDrawerHeader('Walking and waiting add about 13–22 minutes', 'Modelled trips on the fall 2026 schedule, not observed commutes', 'Journeys');
   updateKPIs([
     { label: 'Trips modelled', val: String(js.length), sub: 'across the outer boroughs' },
     { label: 'Average trip', val: mean('total_min').toFixed(1) + ' min', sub: 'door to door' },
@@ -774,7 +774,7 @@ function renderJourneysModule() {
       { label: 'Train / subway', data: [28.5, 39.5, 42.5], backgroundColor: C.dark }
     ]
   }, 'Where the time goes (minutes)', 'Trip planner model', { indexAxis: 'y', stacked: true });
-  setPolicyNote('In Fresh Meadows, walking takes 17.7 of 55.6 minutes and the Q30 ride only 6.9. Bus lanes alone would save little there; shorter walks and easier transfers matter more.');
+  setPolicyNote('In Fresh Meadows, walking is 17.7 of 55.6 minutes and the Q30 ride only 6.9. Bus lanes alone would save little there; shorter walks and easier transfers matter more.');
 }
 
 // MODULE 9: Model test on Union Turnpike
@@ -806,9 +806,9 @@ function renderScenariosModule() {
     legendRow(dot(C.orange), 'Selected starting point'),
     legendRow(dot(C.grey), 'Other starting points (6 in all)'),
     legendRow(dot(C.dark), 'Manhattan destination'),
-    legendRow(line(C.orange, true), 'Trip shown in the panel')
+    legendRow(line(C.orange, true), 'Trip shown in the panel (schematic line)')
   ], '6 starting points × 3 destinations × 4 departure times = 72 trips.'));
-  updateDrawerHeader('Faster buses and easier transfers save 6–12.5 minutes', 'A what-if model of the Q46 and the Kew Gardens transfer, not observed results', 'Model test');
+  updateDrawerHeader('Model test: faster buses and an easier transfer', 'From six Union Turnpike origins to Midtown East at 8 a.m., trips are 6.2–12.5 minutes shorter. Other destinations and times differ; pick them above. A what-if model, not observed results.', 'Model test');
 
   // map: starting points and destinations from census tract centres
   lgScenarios.clearLayers();
@@ -873,11 +873,11 @@ function renderSolutionsModule() {
     legendRow(line(C.brick), 'C01 Fresh Meadows → Midtown'),
     legendRow(line(C.dark), 'C02 Throggs Neck → Midtown'),
     legendRow(line(C.steel), 'C03 Rosedale → Lower Manhattan')
-  ], 'Lines join start and end. Click one for the problem, the fix and what still needs measuring.'));
+  ], 'Straight schematic lines from start to end, not actual routes. Click one for the problem, the fix and what still needs measuring.'));
   updateDrawerHeader('Start in Eastern Queens, then measure the Q30 and Bx8', 'Proposals to test; none approved yet', 'What to do first');
   updateKPIs([
     { label: 'Candidate corridors', val: '4', sub: 'all proposed for testing' },
-    { label: 'Modelled so far', val: '1', sub: 'Union Tpke: 8.7 min average saving' },
+    { label: 'Modelled so far', val: '1', sub: 'Union Tpke → Midtown East, 8 a.m.: 8.7 min average' },
     { label: 'First pilot', val: 'Union Tpke', sub: 'Q46 bus lanes + Kew Gardens transfer' },
     { label: 'Measure first', val: 'Q30, Bx8', sub: 'speed and reliability' }
   ]);
@@ -942,7 +942,7 @@ function inspectTrafficLink(p, tb) {
         Change: ${diff !== null ? (diff > 0 ? '+' : '') + diff.toFixed(2) + ' mph' : 'N/A'}
       </div>
       <div>Data quality: <strong>${cov}</strong> (${p.is_robust ? 'used in the analysis' : 'left out: too few days of data'})</div>
-      ${p.is_bqe_deck_repair ? '<div class="text-[11px] text-amber-700 font-semibold mt-1">BQE deck repairs were under way during 2025.</div>' : ''}
+      ${p.is_bqe_deck_repair ? '<div class="text-[11px] text-amber-700 font-semibold mt-1">Deck repairs were under way in 2025. This data cannot say what caused the change.</div>' : ''}
     </div>
   `;
 }
