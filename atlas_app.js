@@ -49,6 +49,11 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{
   subdomains: 'abcd', maxZoom: 20, pane: 'labels'
 }).addTo(map);
 map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+// Let viewers switch between the street map and a satellite photo
+const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Imagery &copy; Esri, Maxar, Earthstar Geographics', maxZoom: 19
+});
+L.control.layers({ 'Street map': basemap, 'Satellite': satellite }, null, { position: 'bottomright', collapsed: false }).addTo(map);
 
 // Palette shared with the deck: charcoal, greys and one orange accent
 const C = { ink: '#1a1a1a', dark: '#2b2b2b', mid: '#5c5c5c', steel: '#8a8a8a', grey: '#b8b8b8', light: '#e2e2e2', orange: '#c8532a', brick: '#a8441f', brown: '#6b3a22' };
@@ -548,7 +553,7 @@ function renderOverviewModule() {
   updateDrawerHeader('Where things stand', 'Congestion pricing cut traffic. This atlas asks where transit money should go next.', 'Overview');
   updateKPIs([
     { label: 'Fewer vehicles a day', val: '67,000', sub: 'entering the zone (−11%), first 6 months' },
-    { label: 'Zone jobs held by New Yorkers', val: '1.24M', sub: 'Census LODES 2023' },
+    { label: 'Zone jobs held by New Yorkers', val: '1.24M', sub: 'US Census, 2023' },
     { label: 'Held by Brooklyn + Queens', val: '52.8%', sub: '653,842 of 1,239,262' },
     { label: 'Bronx car trips to Manhattan', val: '102,489', sub: 'a day; about 2.8× Queens' }
   ]);
@@ -556,7 +561,7 @@ function renderOverviewModule() {
     labels: Object.keys(ZONE_JOBS),
     datasets: [{ label: 'Residents working in the zone', data: Object.values(ZONE_JOBS),
       backgroundColor: Object.keys(ZONE_JOBS).map(b => (b === 'Brooklyn' || b === 'Queens') ? C.orange : C.grey) }]
-  }, 'Where people who work in the zone live', 'Census LODES 2023');
+  }, 'Where people who work in the zone live', 'US Census, 2023');
   setPolicyNote('Jobs show where workers live, not whether they drive. Car trips are counted to all of Manhattan, not only the tolled zone.');
 }
 
@@ -578,7 +583,7 @@ function renderCongestionModule() {
   renderChart('bar', {
     labels: gw.map(g => g.name),
     datasets: [{ label: 'Vehicles a weekday', data: gw.map(g => g.weekday_entries), backgroundColor: gw.map((g, i) => i < 2 ? C.orange : C.grey) }]
-  }, 'Vehicles a weekday at each crossing (2025)', 'NY Open Data t6yz-b64h', { indexAxis: 'y' });
+  }, 'Vehicles a weekday at each crossing (2025)', 'MTA / NY Open Data', { indexAxis: 'y' });
   setPolicyNote('This shows what changed, not why every change happened. Crossing counts and official totals use different methods, so they do not add up.');
 }
 
@@ -617,7 +622,7 @@ function renderTrafficModule() {
   renderChart('bar', {
     labels: ['Faster', 'Little change', 'Slower'],
     datasets: [{ label: 'Roads (morning peak)', data: [13, 45, 22], backgroundColor: [C.dark, C.grey, C.orange] }]
-  }, 'Morning-peak roads by speed change', 'NYC DOT speeds i4gi-tjb9');
+  }, 'Morning-peak roads by speed change', 'NYC DOT');
   setPolicyNote('The median change was −0.4 mph. The BQE slowdown (42 to 22 mph) lines up with deck repairs, not tolling. Speeds alone cannot prove or rule out traffic moving to other roads.');
 }
 
@@ -647,7 +652,7 @@ function renderOriginsModule() {
   const ramp = [['#5f2713', 'More than 2,000'], ['#8f3a1b', '1,201 – 2,000'], ['#c8532a', '601 – 1,200'], ['#df8a66', '251 – 600'], ['#efbfa8', '101 – 250'], ['#f8e6dc', '1 – 100']];
   updateLegend(legendBox('Workers per census tract', ramp.map(r => legendRow(box(r[0]), r[1])).concat([
     legendRow(box('transparent', `border:2.5px solid ${C.orange}`), 'Congestion pricing zone')])));
-  updateDrawerHeader('Brooklyn and Queens supply most zone workers', 'Where people who work in the zone live (Census LODES 2023)', 'Who travels');
+  updateDrawerHeader('Brooklyn and Queens supply most zone workers', 'Where people who work in the zone live (US Census, 2023)', 'Who travels');
   updateKPIs([
     { label: 'Zone jobs held by New Yorkers', val: '1,239,262', sub: 'south of 60th St' },
     { label: 'Brooklyn + Queens', val: '52.8%', sub: '653,842 jobs' },
@@ -658,7 +663,7 @@ function renderOriginsModule() {
     labels: Object.keys(CAR_TRIPS),
     datasets: [{ label: 'Car-driver trips a day', data: Object.values(CAR_TRIPS),
       backgroundColor: Object.keys(CAR_TRIPS).map(b => b === 'Bronx' ? C.orange : C.grey) }]
-  }, 'Car-driver trips into all of Manhattan a day', 'NYC DOT Mobility Survey 2024');
+  }, 'Car-driver trips into all of Manhattan a day', 'NYC DOT survey, 2024');
   setPolicyNote('Jobs show where workers live, not how they travel. Car trips cover all of Manhattan, not only the tolled zone, so the two cannot be combined into "drivers into the zone".');
 }
 
@@ -695,7 +700,7 @@ function renderOpportunityModule() {
   renderChart('bar', {
     labels: ['Under 10%', '10–25%', '25–40%', '40–60%', 'Over 60%'],
     datasets: [{ label: 'Census tracts', data: bins, backgroundColor: ['#f8e6dc', '#efbfa8', '#d6754f', '#a8441f', '#5f2713'] }]
-  }, 'Census tracts by share driving alone', 'Census ACS 2018–2022');
+  }, 'Census tracts by share driving alone', 'US Census, 2018–2022');
   setPolicyNote('The shortlist is a first screen using modelled car times. It points to places worth studying, not final investment decisions.');
 }
 
@@ -709,7 +714,7 @@ function toggleScreenedOpportunity(val) {
 function renderTransitModule() {
   updateToolbar(toolbarTitle('Subway network', '496 stations; few in eastern Queens and the east Bronx'));
   updateLegend(legendBox('On the map', [legendRow(dot(C.mid), 'Subway station')], 'Each station counted once (platforms merged).'));
-  updateDrawerHeader('Subway stations thin out at the edges', 'MTA subway stations (GTFS), counted by borough', 'Subway network');
+  updateDrawerHeader('Subway stations thin out at the edges', 'MTA subway stations, counted by borough', 'Subway network');
   updateKPIs([
     { label: 'Subway stations', val: '496', sub: 'each counted once' },
     { label: 'Manhattan', val: '153', sub: '31% of all stations' },
@@ -719,7 +724,7 @@ function renderTransitModule() {
   renderChart('bar', {
     labels: ['Manhattan', 'Brooklyn', 'Queens', 'Bronx', 'Staten Island'],
     datasets: [{ label: 'Stations', data: [153, 169, 83, 70, 21], backgroundColor: [C.grey, C.grey, C.orange, C.orange, C.grey] }]
-  }, 'Subway stations by borough', 'MTA GTFS');
+  }, 'Subway stations by borough', 'MTA');
   setPolicyNote('Where the subway is far away, people rely on feeder buses or drive. That is why the feeder buses matter.');
 }
 
@@ -745,7 +750,7 @@ function renderBusesModule() {
   renderChart('bar', {
     labels: ten.map(r => r.route_id),
     datasets: [{ label: 'Morning speed (mph)', data: ten.map(r => r.speed_mph), backgroundColor: ten.map(r => r.speed_mph < 7 ? C.orange : C.grey) }]
-  }, 'The 10 slowest measured routes (mph)', 'MTA kufs-yh3x', { indexAxis: 'y' });
+  }, 'The 10 slowest measured routes (mph)', 'MTA, Aug 2026', { indexAxis: 'y' });
   setPolicyNote('The Q30 and Bx8 are not in the MTA data. Other routes\' numbers cannot stand in for them, so measure them before spending.');
 }
 
@@ -775,7 +780,7 @@ function renderJourneysModule() {
       { label: 'Bus', data: [6.9, 0, 16.0], backgroundColor: C.steel },
       { label: 'Train / subway', data: [28.5, 39.5, 42.5], backgroundColor: C.dark }
     ]
-  }, 'Where the time goes (minutes)', 'OpenTripPlanner', { indexAxis: 'y', stacked: true });
+  }, 'Where the time goes (minutes)', 'Trip planner model', { indexAxis: 'y', stacked: true });
   setPolicyNote('In Fresh Meadows, walking takes 17.7 of 55.6 minutes and the Q30 ride only 6.9. Bus lanes alone would save little there; shorter walks and easier transfers matter more.');
 }
 
@@ -802,7 +807,7 @@ function renderScenariosModule() {
     <label class="flex items-center gap-1 text-slate-700 whitespace-nowrap"><span>To</span>
       <select id="scenario-dest" onchange="updateScenarioSelection()" class="bg-white border border-slate-300 px-1.5 py-1 text-xs">${opt(dests.map(([v, t]) => [v, short(t)]), state.selectedOD.destination)}</select></label>
     <label class="flex items-center gap-1 text-slate-700 whitespace-nowrap"><span>Leaving</span>
-      <select id="scenario-time" onchange="updateScenarioSelection()" class="bg-white border border-slate-300 px-1.5 py-1 text-xs">${opt(times.map(t => [t, t]), state.selectedOD.time)}</select></label>
+      <select id="scenario-time" onchange="updateScenarioSelection()" class="bg-white border border-slate-300 px-1.5 py-1 text-xs">${opt(times.map(t => [t, ({'AM Peak Early (07:30 AM)': '7:30 a.m.', 'AM Peak Core (08:00 AM)': '8:00 a.m.', 'AM Peak Late (08:30 AM)': '8:30 a.m.', 'Midday Off-Peak (12:00 PM)': 'Noon'})[t] || t]), state.selectedOD.time)}</select></label>
   `);
   updateLegend(legendBox('Union Turnpike model test', [
     legendRow(dot(C.orange), 'Selected starting point'),
@@ -863,7 +868,7 @@ function updateScenarioSelection() {
     labels: ['Today', 'Faster buses', 'Easier transfer', 'Both'],
     datasets: [{ label: 'Door-to-door minutes', data: [match.s0_total_journey_min, match.s1_total_journey_min, match.s2_total_journey_min, match.s3_total_journey_min],
       backgroundColor: [C.grey, C.steel, C.steel, C.orange] }]
-  }, `${match.origin_name.split(' (')[0]} → ${match.dest_name.split(' (')[0]}`, 'Stage 5 model');
+  }, `${match.origin_name.split(' (')[0]} → ${match.dest_name.split(' (')[0]}`, 'Model test');
   setPolicyNote('To Grand Central in the 8 a.m. peak, savings run from 6.2 to 12.5 minutes (average 8.7 minutes, 13.5%). Across all 72 trips the range is 10.3% to 16.5%. This is a model, not a forecast of ridership.');
 }
 
@@ -886,7 +891,7 @@ function renderSolutionsModule() {
   renderChart('bar', {
     labels: ['Eastern Queens', 'East Bronx', 'Southeast Queens'],
     datasets: [{ label: 'Residents working in the zone', data: [2649, 1454, 651], backgroundColor: [C.orange, C.grey, C.grey] }]
-  }, 'Zone jobs held by residents of each candidate area', 'Census LODES 2023');
+  }, 'Zone jobs held by residents of each candidate area', 'US Census, 2023');
   setPolicyNote('Toll money can only pay for capital projects (NY Public Authorities Law §553-j), not day-to-day running costs. Costs still need engineering estimates.');
 }
 
