@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Exhibit 1: Congestion pricing results</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%231a1a1a%27/%3E%3Crect x=%274%27 y=%274%27 width=%278%27 height=%278%27 fill=%27%23c8532a%27/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #5c5c5c;
+      --navy: #2b2b2b;
+      --ochre: #c8532a;
+      --brick: #a8441f;
+      --steel: #8a8a8a;
+      --grey: #b8b8b8;
+      --light: #f2f2f2;
+      --line: #d9d9d9;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--white);
+      color: var(--ink);
+      font: 16px/1.5 Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 32px 40px;
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 14px;
+      color: var(--navy);
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .back:hover { text-decoration: underline; }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font: 700 30px/1.2 Arial, Helvetica, sans-serif;
+    }
+
+    .lede {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .grid.two { grid-template-columns: 1fr 1fr; }
+    .grid.split { grid-template-columns: 1.1fr 0.9fr; }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+
+    .panel {
+      background: var(--light);
+      border-radius: 0;
+      padding: 20px 22px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 20px;
+    }
+
+    .chart { position: relative; height: 260px; }
+    .chart.tall { height: 340px; }
+
+    .grid.split > .map {
+      height: auto;
+      min-height: 560px;
+    }
+
+    .map {
+      height: 560px;
+      border-radius: 0;
+      background: var(--light);
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 24px;
+    }
+
+    .notes ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .notes li { margin-bottom: 6px; }
+
+    .label-care { color: var(--brick); }
+
+    .source {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend {
+      padding: 10px 12px;
+      background: var(--white);
+      border-radius: 2px;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .legend .key {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+      vertical-align: -2px;
+      border-radius: 2px;
+    }
+
+    .legend .line {
+      height: 4px;
+      vertical-align: 3px;
+      border-radius: 2px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .controls .group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .controls .name {
+      margin-right: 4px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    button {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      background: var(--white);
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button.active {
+      border-color: var(--navy);
+      background: var(--navy);
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .trip {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .trip .top { min-height: 3.1em; }
+
+    .trip .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .trip .total {
+      color: var(--navy);
+      font: 700 22px Arial, Helvetica, sans-serif;
+      white-space: nowrap;
+    }
+
+    .trip p { margin: 0; }
+
+    .trip .status {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .big {
+      color: var(--navy);
+      font: 700 40px/1.1 Arial, Helvetica, sans-serif;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      font-size: 15px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    ol.checks {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    ol.checks li { margin-bottom: 8px; }
+
+    .split-bar {
+      display: flex;
+      height: 26px;
+      margin: 4px 0 12px;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .split-bar span { display: block; }
+
+    .keyrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .keyrow b {
+      width: 48px;
+      font: 700 20px Arial, Helvetica, sans-serif;
+    }
+
+    @media (max-width: 900px) {
+      .page { padding: 18px 16px 32px; }
+      h1 { font-size: 24px; }
+      .grid.two,
+      .grid.split,
+      .grid.three,
+      .notes { grid-template-columns: 1fr; }
+      .map,
+      .grid.split > .map { height: 420px; min-height: 0; }
+      .chart.tall { height: 300px; }
+      table { font-size: 14px; }
+    }
+
+    a, button, .panel { transition: color .15s, background-color .15s, border-color .15s, box-shadow .15s; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--ochre); outline-offset: 2px; }
+    button:hover { border-color: var(--navy); }
+    button.active:hover { background: var(--ink); }
+    .back:hover { color: var(--ochre); text-decoration: none; }
+    .topbar { border-bottom: 1px solid var(--line); background: var(--white); position: sticky; top: 0; z-index: 1000; }
+    .topbar .in { max-width: 1240px; margin: 0 auto; padding: 12px 32px; display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 14px; }
+    .topbar a.home { color: var(--ink); font-weight: 700; text-decoration: none; }
+    .topbar a.home:hover { color: var(--ochre); }
+    .pager { display: flex; gap: 4px; }
+    .pager a { display: inline-block; min-width: 30px; padding: 4px 0; text-align: center; color: var(--muted); text-decoration: none; border: 1px solid var(--line); font-weight: 700; }
+    .pager a:hover { border-color: var(--ink); color: var(--ink); }
+    .pager a.on { background: var(--ink); border-color: var(--ink); color: var(--white); }
+    .hint { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+    .prevnext { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 28px; }
+    .prevnext a { display: block; padding: 16px 20px; border: 1px solid var(--line); text-decoration: none; color: var(--ink); }
+    .prevnext a:hover { border-color: var(--ink); }
+    .prevnext a.next { text-align: right; }
+    .prevnext small { display: block; color: var(--muted); font-size: 13px; margin-bottom: 2px; }
+    .prevnext b { font-size: 16px; }
+    .leaflet-container { font: 13px/1.45 Arial, Helvetica, sans-serif; }
+    .leaflet-tooltip.tt, .leaflet-popup-content-wrapper { border-radius: 0; background: var(--ink); color: var(--white); border: 0; box-shadow: 0 2px 10px rgba(0,0,0,.25); padding: 8px 10px; font-size: 13px; line-height: 1.45; }
+    .leaflet-tooltip.tt:before { display: none; }
+    .leaflet-popup-tip { background: var(--ink); }
+    .leaflet-popup-content { margin: 4px 6px; }
+    .leaflet-container a.leaflet-popup-close-button { color: #ccc; }
+    .leaflet-interactive { cursor: pointer; }
+    .maphint { background: rgba(255,255,255,.92); padding: 4px 8px; font-size: 12px; color: var(--muted); border: 1px solid var(--line); }
+    .leaflet-bar a { border-radius: 0 !important; }
+    @media (max-width: 900px) { .topbar .in { padding: 10px 16px; }  }
+    @media (max-width: 560px) { .prevnext { grid-template-columns: 1fr; } }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="in"><a class="home" href="../index.html">&larr; <span>Overview</span></a><nav class="pager" aria-label="Exhibits"><a href="Exhibit_1_Congestion_Pricing.html" class="on" aria-current="page" title="Traffic fell">1</a><a href="Exhibit_2_Highway_Speeds.html" title="Highway speeds">2</a><a href="Exhibit_3_Travel_Origins.html" title="Who travels">3</a><a href="Exhibit_4_Transit_Journeys.html" title="Why transit is slow">4</a><a href="Exhibit_5_Improvement_Scenarios.html" title="Model test">5</a><a href="Exhibit_6_Government_Decision.html" title="What to fund">6</a></nav></div></header>
+  <div class="page">
+    <p class="eyebrow">Exhibit 1 &middot; Congestion pricing results</p>
+    <h1>Congestion pricing cut traffic into the zone by about 11%</h1>
+    <p class="lede">About 67,000 fewer vehicles a day entered Manhattan south of 60th Street in the first six months (5 Jan &ndash; 30 Jun 2025).</p>
+
+    <div class="grid split">
+      <div class="stack">
+        <div class="panel">
+          <h2>Daily vehicle entries, before and after tolling (official estimate)</h2>
+          <div class="chart"><canvas id="beforeAfter"></canvas></div>
+        </div>
+        <div class="panel">
+          <h2>Average weekday entries by crossing, 2025 (all 12 crossings)</h2>
+          <div class="chart tall"><canvas id="crossings"></canvas></div>
+        </div>
+      </div>
+      <div id="map" class="map"></div>
+    </div>
+
+    <section class="notes">
+      <div class="panel">
+        <h2>What this shows</h2>
+        <ul>
+          <li>Entries fell by about 67,000 a day (&minus;11%) compared with before tolling.</li>
+          <li>The busiest crossing is East 60th St (15.5% of entries), followed by the FDR Drive (10.4%).</li>
+          <li>On the map, the shaded area is the official zone; circle size shows weekday entries at each crossing.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2 class="label-care">Read with care</h2>
+        <ul>
+          <li>The before and after totals are rounded official estimates (about 600,000 and 533,000).</li>
+          <li>Crossing counts (511,829 a weekday in total) use a different detection method, so they do not add up to the official totals.</li>
+          <li>This shows what changed, not why every change happened.</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="source">Sources: MTA congestion pricing six-month report; NY Open Data t6yz-b64h (5 Jan &ndash; 30 Jun 2025); zone boundary from the MTA GIS layer.</p>
+    <nav class="prevnext"><a class="prev" href="../index.html"><small>&larr; Home</small><b>Overview</b></a><a class="next" href="Exhibit_2_Highway_Speeds.html"><small>Exhibit 2 &rarr;</small><b>Highway speeds</b></a></nav>
+  </div>
+  <script>
+    Chart.defaults.font.family = 'Arial, Helvetica, sans-serif';
+    Chart.defaults.font.size = 13;
+    Chart.defaults.color = '#5c5c5c';
+    Chart.defaults.plugins.legend.labels.boxWidth = 14;
+    Chart.defaults.maintainAspectRatio = false;
+    Chart.defaults.animation.duration = 500;
+    Chart.defaults.plugins.tooltip.backgroundColor = '#1a1a1a';
+    Chart.defaults.plugins.tooltip.cornerRadius = 0;
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.titleFont = { weight: 'bold', size: 13 };
+    Chart.defaults.plugins.tooltip.bodyFont = { size: 13 };
+    Chart.defaults.plugins.tooltip.displayColors = true;
+    Chart.defaults.plugins.tooltip.boxPadding = 4;
+
+    var COLORS = {
+      ink: '#1a1a1a', navy: '#2b2b2b', ochre: '#c8532a', brick: '#a8441f',
+      steel: '#8a8a8a', grey: '#b8b8b8', brown: '#6b3a22', slate: '#5c5c5c'
+    };
+    var GRID = { color: '#e6e6e6' };
+    function k(v) { return (v / 1000) + 'k'; }
+
+    var zone = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-73.95922,40.75865],[-73.9629,40.76024],[-73.96271,40.76057],[-73.96276,40.76064],[-73.96282,40.76071],[-73.96287,40.76088],[-73.96294,40.76094],[-73.96764,40.76303],[-73.97241,40.76504],[-73.97334,40.76541],[-73.97377,40.76493],[-73.98086,40.76793],[-73.98096,40.76864],[-73.99246,40.77338],[-73.99328,40.77221],[-73.99385,40.77136],[-73.99412,40.7699],[-73.99546,40.76782],[-73.99667,40.76598],[-73.99818,40.76398],[-73.99918,40.76303],[-74.00076,40.7617],[-74.00183,40.76052],[-74.00276,40.75918],[-74.00378,40.75762],[-74.00467,40.75637],[-74.00592,40.75482],[-74.00662,40.75374],[-74.00742,40.75159],[-74.00773,40.75035],[-74.00723,40.74877],[-74.00749,40.74628],[-74.00787,40.74437],[-74.00829,40.74222],[-74.00854,40.74073],[-74.00933,40.7392],[-74.00936,40.7376],[-74.00986,40.73259],[-74.01001,40.73109],[-74.01007,40.72982],[-74.01033,40.72757],[-74.01074,40.72511],[-74.01122,40.72233],[-74.01191,40.71865],[-74.01282,40.71498],[-74.01348,40.71307],[-74.01397,40.71119],[-74.01415,40.71026],[-74.0144,40.70939],[-74.01495,40.7077],[-74.01458,40.70725],[-74.01438,40.70698],[-74.01428,40.70651],[-74.01447,40.70606],[-74.01462,40.70571],[-74.01479,40.7053],[-74.01494,40.70466],[-74.01441,40.70445],[-74.01462,40.70336],[-74.01449,40.70283],[-74.01397,40.7023],[-74.0132,40.70226],[-74.01296,40.70225],[-74.01286,40.70172],[-74.01256,40.70156],[-74.01115,40.70184],[-74.00966,40.70232],[-74.00818,40.70324],[-74.00648,40.70439],[-74.00341,40.70636],[-74.00047,40.70805],[-74.00081,40.70865],[-74.00175,40.70944],[-74.00278,40.71024],[-74.00332,40.71066],[-74.00358,40.71079],[-74.00409,40.71089],[-74.00431,40.71095],[-74.00447,40.71106],[-74.00452,40.71122],[-74.00452,40.71133],[-74.00446,40.71142],[-74.00436,40.7115],[-74.0041,40.71158],[-74.00356,40.71156],[-74.00341,40.71175],[-74.00324,40.7119],[-74.00299,40.71193],[-74.00284,40.71191],[-74.00267,40.71182],[-74.00235,40.71128],[-74.00187,40.71076],[-74.00128,40.71021],[-74.00083,40.70979],[-74.00036,40.70941],[-74.00002,40.70912],[-73.99984,40.70901],[-73.9994,40.70869],[-73.99907,40.70869],[-73.99873,40.70887],[-73.99802,40.70919],[-73.99657,40.70942],[-73.99486,40.70968],[-73.99356,40.70986],[-73.99056,40.71029],[-73.9888,40.7105],[-73.98709,40.71071],[-73.98473,40.71093],[-73.98356,40.71101],[-73.98183,40.71113],[-73.97957,40.71156],[-73.97866,40.712],[-73.97809,40.71291],[-73.97697,40.71498],[-73.97607,40.71675],[-73.9757,40.71777],[-73.97546,40.71892],[-73.97503,40.72161],[-73.97485,40.72237],[-73.97448,40.72301],[-73.97372,40.72424],[-73.97279,40.72555],[-73.97219,40.727],[-73.97206,40.72801],[-73.97254,40.72959],[-73.97365,40.73045],[-73.974,40.73099],[-73.97421,40.73172],[-73.97436,40.73224],[-73.97463,40.73334],[-73.9752,40.73551],[-73.97527,40.73568],[-73.97538,40.73634],[-73.97514,40.73719],[-73.97435,40.73819],[-73.97366,40.7392],[-73.97297,40.74243],[-73.97252,40.74324],[-73.97236,40.74342],[-73.97161,40.74479],[-73.97115,40.74538],[-73.97063,40.74597],[-73.96987,40.74675],[-73.96897,40.7477],[-73.96727,40.74997],[-73.96539,40.75193],[-73.9647,40.75261],[-73.96326,40.75415],[-73.96283,40.75478],[-73.96168,40.75592],[-73.96117,40.75653],[-73.95922,40.75865]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-73.9586,40.75915],[-73.96259,40.7609],[-73.9626,40.76085],[-73.96257,40.76079],[-73.96253,40.76072],[-73.96245,40.76062],[-73.96232,40.76053],[-73.96215,40.76046],[-73.96205,40.76042],[-73.96165,40.76026],[-73.96098,40.75995],[-73.96028,40.75967],[-73.9587,40.75899],[-73.9586,40.75915]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-74.0105,40.70163],[-74.00925,40.69979],[-73.99829,40.70498],[-74.00096,40.70697],[-74.00246,40.70626],[-74.00382,40.70543],[-74.00655,40.70365],[-74.00736,40.703],[-74.00827,40.70245],[-74.00933,40.70192],[-74.0105,40.70163]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-73.97393,40.73481],[-73.97326,40.73483],[-73.97229,40.73489],[-73.9723,40.736],[-73.97238,40.73715],[-73.97239,40.73922],[-73.97223,40.73987],[-73.97164,40.7426],[-73.97095,40.74382],[-73.97129,40.74392],[-73.972,40.74279],[-73.97242,40.74106],[-73.97286,40.73931],[-73.97299,40.73891],[-73.97323,40.73853],[-73.97369,40.73787],[-73.97397,40.73749],[-73.97424,40.73714],[-73.97444,40.73684],[-73.97459,40.73631],[-73.9746,40.73584],[-73.97451,40.73521],[-73.97433,40.73477],[-73.97393,40.73481]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-73.98907,40.7099],[-73.98888,40.70892],[-73.97955,40.7098],[-73.97715,40.71072],[-73.97603,40.71168],[-73.97543,40.7127],[-73.97325,40.71917],[-73.97165,40.72581],[-73.97199,40.72589],[-73.97414,40.72238],[-73.97433,40.72127],[-73.97431,40.72014],[-73.97442,40.71852],[-73.975,40.71707],[-73.9769,40.71343],[-73.9775,40.71225],[-73.97811,40.71147],[-73.97924,40.71095],[-73.98021,40.71071],[-73.98124,40.71061],[-73.98216,40.71056],[-73.9834,40.71041],[-73.98449,40.71038],[-73.9848,40.71041],[-73.98684,40.71016],[-73.98907,40.7099]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-74.01566,40.70696],[-74.01593,40.70618],[-74.01599,40.70619],[-74.01608,40.70594],[-74.01618,40.70565],[-74.01631,40.70537],[-74.01642,40.70509],[-74.01643,40.70483],[-74.01639,40.70443],[-74.01586,40.70441],[-74.0156,40.70504],[-74.01513,40.70628],[-74.01511,40.7066],[-74.01526,40.70685],[-74.01545,40.70698],[-74.01566,40.70696]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-74.01044,40.73925],[-74.01021,40.73986],[-74.00957,40.74095],[-74.00907,40.74283],[-74.00818,40.74852],[-74.00858,40.74947],[-74.0088,40.75047],[-74.00837,40.75172],[-74.0073,40.75437],[-74.00624,40.75588],[-74.00465,40.7582],[-74.00317,40.76023],[-74.00158,40.76227],[-73.99963,40.76367],[-73.99694,40.76737],[-73.99509,40.76989],[-73.99492,40.77156],[-73.99332,40.77373],[-73.99456,40.77414],[-73.99607,40.77465],[-74.00669,40.76034],[-74.00794,40.75881],[-74.00566,40.75794],[-74.00825,40.75523],[-74.00974,40.75351],[-74.01104,40.7512],[-74.01131,40.74947],[-74.01981,40.70621],[-74.01944,40.70469],[-74.01862,40.70361],[-74.01756,40.70356],[-74.01703,40.70415],[-74.01695,40.70456],[-74.01703,40.70484],[-74.01695,40.70515],[-74.01677,40.70559],[-74.01666,40.70626],[-74.0165,40.70671],[-74.01614,40.70772],[-74.01554,40.70951],[-74.01514,40.71089],[-74.01456,40.71315],[-74.01389,40.71517],[-74.01167,40.72494],[-74.0114,40.7267],[-74.01109,40.72846],[-74.01093,40.7321],[-74.01054,40.73572],[-74.01044,40.73925]]]}}]};
+    var gateways = [{"name":"East 60th St","entries":79465,"share":15.53,"lng":-73.9632,"lat":40.7618},{"name":"FDR Drive at 60th St","entries":53005,"share":10.36,"lng":-73.9575,"lat":40.7592},{"name":"Lincoln Tunnel","entries":46784,"share":9.14,"lng":-74.0016,"lat":40.7582},{"name":"Queens Midtown Tunnel","entries":46537,"share":9.09,"lng":-73.9698,"lat":40.7445},{"name":"West Side Highway at 60th St","entries":45931,"share":8.97,"lng":-73.9928,"lat":40.7725},{"name":"Holland Tunnel","entries":41440,"share":8.1,"lng":-74.0118,"lat":40.7265},{"name":"Williamsburg Bridge","entries":40196,"share":7.85,"lng":-73.9723,"lat":40.7135},{"name":"West 60th St","entries":39414,"share":7.7,"lng":-73.9875,"lat":40.7702},{"name":"Queensboro Bridge","entries":38869,"share":7.59,"lng":-73.9578,"lat":40.757},{"name":"Manhattan Bridge","entries":29377,"share":5.74,"lng":-73.9908,"lat":40.7075},{"name":"Brooklyn Bridge","entries":27906,"share":5.45,"lng":-73.9969,"lat":40.7061},{"name":"Hugh L. Carey Tunnel","entries":22905,"share":4.48,"lng":-74.0145,"lat":40.7025}];
+
+    var map = L.map('map', { scrollWheelZoom: false }).setView([40.735, -73.99], 13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }).addTo(map);
+
+    var zoneLayer = L.geoJSON(zone, {
+      style: { color: COLORS.navy, weight: 2, fillColor: COLORS.navy, fillOpacity: 0.12 }
+    }).bindPopup('<strong>Congestion pricing zone</strong><br>All roads south of 60th Street').addTo(map);
+    map.fitBounds(zoneLayer.getBounds(), { padding: [24, 24] });
+
+    gateways.forEach(function (g) {
+      L.circleMarker([g.lat, g.lng], {
+        radius: Math.sqrt(g.entries) / 20 + 4,
+        color: '#ffffff', weight: 1.5, fillColor: COLORS.ochre, fillOpacity: 0.85
+      }).bindPopup('<strong>' + g.name + '</strong><br>' +
+        g.entries.toLocaleString() + ' entries per weekday<br>' + g.share + '% of all entries').addTo(map);
+    });
+
+    new Chart(document.getElementById('beforeAfter'), {
+      type: 'bar',
+      data: {
+        labels: ['Before tolling (about 600k)', 'After tolling (about 533k)'],
+        datasets: [{ data: [600000, 533000], backgroundColor: [COLORS.grey, COLORS.navy], borderRadius: 0 }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { afterBody: function () { return 'Change: about \u221267,000 a day (\u221211%)'; } } }
+        },
+        scales: {
+          y: { beginAtZero: true, max: 700000, grid: GRID, ticks: { callback: k } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('crossings'), {
+      type: 'bar',
+      data: {
+        labels: gateways.map(function (g) { return g.name.replace(' at 60th St', ''); }),
+        datasets: [{ data: gateways.map(function (g) { return g.entries; }), backgroundColor: COLORS.navy, borderRadius: 0 }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: GRID, ticks: { callback: k } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  </script>
+
+  <script>
+    (function () {
+      if (typeof map === 'undefined' || typeof L === 'undefined') return;
+      var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+      function enhance(l) {
+        if (!(l instanceof L.Path) || l._enh) return;
+        l._enh = true;
+        var base = { weight: l.options.weight, color: l.options.color, fillOpacity: l.options.fillOpacity, opacity: l.options.opacity };
+        var pop = l.getPopup && l.getPopup();
+        if (canHover && pop) {
+          var c = pop.getContent();
+          l.unbindPopup();
+          l.bindTooltip(c, { sticky: true, direction: 'auto', offset: [12, 0], className: 'tt', opacity: 1 });
+        }
+        l.on('mouseover', function () {
+          var big = l.feature && l.feature.geometry && /Polygon/.test(l.feature.geometry.type) && !l.feature.properties.id && !l.feature.properties.z;
+          if (big) return;
+          l.setStyle({ weight: (base.weight || 1) + 2, color: '#1a1a1a', fillOpacity: Math.min(1, (base.fillOpacity || 0.6) + 0.15), opacity: 1 });
+          if (!l.feature || !/Polygon/.test(l.feature.geometry.type)) l.bringToFront();
+        });
+        l.on('mouseout', function () { l.setStyle(base); });
+      }
+      function walk(l) { if (l.eachLayer) { l.eachLayer(walk); } enhance(l); }
+      map.eachLayer(walk);
+      map.on('layeradd', function (e) { walk(e.layer); });
+      map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+      var hint = L.control({ position: 'topright' });
+      hint.onAdd = function () { var d = L.DomUtil.create('div', 'maphint'); d.textContent = canHover ? 'Hover over the map for details' : 'Tap the map for details'; return d; };
+      hint.addTo(map);
+    })();
+  </script>
+</body>
+</html>
