@@ -1,0 +1,312 @@
+[
+  {
+    "route_id": "B100",
+    "borough": "Brooklyn",
+    "speed_mph": 8.64,
+    "trip_count": 2449,
+    "wait_assessment_peak_pct": 71.7,
+    "wait_assessment_offpeak_pct": 79.5,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "B38",
+    "borough": "Brooklyn",
+    "speed_mph": 6.48,
+    "trip_count": 6181,
+    "wait_assessment_peak_pct": 69.4,
+    "wait_assessment_offpeak_pct": 76.7,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "B41",
+    "borough": "Brooklyn",
+    "speed_mph": 7.5,
+    "trip_count": 5589,
+    "wait_assessment_peak_pct": 59.0,
+    "wait_assessment_offpeak_pct": 67.2,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "B46",
+    "borough": "Brooklyn",
+    "speed_mph": 7.43,
+    "trip_count": 5551,
+    "wait_assessment_peak_pct": 57.3,
+    "wait_assessment_offpeak_pct": 66.9,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "B46+",
+    "borough": "Brooklyn",
+    "speed_mph": 9.72,
+    "trip_count": 2350,
+    "wait_assessment_peak_pct": 59.5,
+    "wait_assessment_offpeak_pct": 76.2,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "B57",
+    "borough": "Brooklyn",
+    "speed_mph": 6.44,
+    "trip_count": 2598,
+    "wait_assessment_peak_pct": 64.5,
+    "wait_assessment_offpeak_pct": 71.8,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "BX1",
+    "borough": "Bronx",
+    "speed_mph": 7.32,
+    "trip_count": 2927,
+    "wait_assessment_peak_pct": 81.5,
+    "wait_assessment_offpeak_pct": 70.4,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "BX12",
+    "borough": "Bronx",
+    "speed_mph": 9.07,
+    "trip_count": 2332,
+    "wait_assessment_peak_pct": 60.9,
+    "wait_assessment_offpeak_pct": 73.8,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "BX12+",
+    "borough": "Bronx",
+    "speed_mph": 11.77,
+    "trip_count": 2648,
+    "wait_assessment_peak_pct": 72.9,
+    "wait_assessment_offpeak_pct": 75.6,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "BX19",
+    "borough": "Bronx",
+    "speed_mph": 6.2,
+    "trip_count": 3213,
+    "wait_assessment_peak_pct": 64.3,
+    "wait_assessment_offpeak_pct": 69.3,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "BX2",
+    "borough": "Bronx",
+    "speed_mph": 5.95,
+    "trip_count": 1995,
+    "wait_assessment_peak_pct": 66.4,
+    "wait_assessment_offpeak_pct": 71.7,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "BX28",
+    "borough": "Bronx",
+    "speed_mph": 6.65,
+    "trip_count": 2390,
+    "wait_assessment_peak_pct": 71.3,
+    "wait_assessment_offpeak_pct": 75.9,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "M101",
+    "borough": "Manhattan",
+    "speed_mph": 6.17,
+    "trip_count": 4705,
+    "wait_assessment_peak_pct": 71.4,
+    "wait_assessment_offpeak_pct": 70.5,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "M14A+",
+    "borough": "Manhattan",
+    "speed_mph": 6.47,
+    "trip_count": 1221,
+    "wait_assessment_peak_pct": 68.1,
+    "wait_assessment_offpeak_pct": 80.3,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "M14D+",
+    "borough": "Manhattan",
+    "speed_mph": 6.34,
+    "trip_count": 3209,
+    "wait_assessment_peak_pct": 70.0,
+    "wait_assessment_offpeak_pct": 86.0,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "M15",
+    "borough": "Manhattan",
+    "speed_mph": 6.15,
+    "trip_count": 4720,
+    "wait_assessment_peak_pct": 62.3,
+    "wait_assessment_offpeak_pct": 70.7,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "M15+",
+    "borough": "Manhattan",
+    "speed_mph": 8.22,
+    "trip_count": 4369,
+    "wait_assessment_peak_pct": 73.8,
+    "wait_assessment_offpeak_pct": 80.2,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "M34+",
+    "borough": "Manhattan",
+    "speed_mph": 5.32,
+    "trip_count": 1228,
+    "wait_assessment_peak_pct": 56.8,
+    "wait_assessment_offpeak_pct": 72.4,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "Q111",
+    "borough": "Queens",
+    "speed_mph": 8.54,
+    "trip_count": 2398,
+    "wait_assessment_peak_pct": 69.9,
+    "wait_assessment_offpeak_pct": 72.6,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "Q43",
+    "borough": "Queens",
+    "speed_mph": 10.43,
+    "trip_count": 4028,
+    "wait_assessment_peak_pct": 78.2,
+    "wait_assessment_offpeak_pct": 83.7,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "Q44+",
+    "borough": "Other",
+    "speed_mph": 9.0,
+    "trip_count": 2119,
+    "wait_assessment_peak_pct": 73.4,
+    "wait_assessment_offpeak_pct": 78.5,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "Q46",
+    "borough": "Queens",
+    "speed_mph": 11.43,
+    "trip_count": 2622,
+    "wait_assessment_peak_pct": 79.9,
+    "wait_assessment_offpeak_pct": 89.5,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "Q54",
+    "borough": "Queens",
+    "speed_mph": 7.59,
+    "trip_count": 4748,
+    "wait_assessment_peak_pct": 68.5,
+    "wait_assessment_offpeak_pct": 74.9,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "Q58",
+    "borough": "Queens",
+    "speed_mph": 7.84,
+    "trip_count": 7817,
+    "wait_assessment_peak_pct": 66.3,
+    "wait_assessment_offpeak_pct": 74.9,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "S40",
+    "borough": "Staten Island",
+    "speed_mph": 14.21,
+    "trip_count": 1722,
+    "wait_assessment_peak_pct": 70.6,
+    "wait_assessment_offpeak_pct": 80.8,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "S59",
+    "borough": "Staten Island",
+    "speed_mph": 14.36,
+    "trip_count": 2668,
+    "wait_assessment_peak_pct": 72.5,
+    "wait_assessment_offpeak_pct": 82.3,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "S78",
+    "borough": "Staten Island",
+    "speed_mph": 13.06,
+    "trip_count": 3746,
+    "wait_assessment_peak_pct": 66.0,
+    "wait_assessment_offpeak_pct": 76.2,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "S79+",
+    "borough": "Other",
+    "speed_mph": 14.99,
+    "trip_count": 4239,
+    "wait_assessment_peak_pct": 74.2,
+    "wait_assessment_offpeak_pct": 82.0,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "SIM1C",
+    "borough": "Other",
+    "speed_mph": 14.48,
+    "trip_count": 769,
+    "wait_assessment_peak_pct": 67.4,
+    "wait_assessment_offpeak_pct": 77.6,
+    "status": "MONITORED_SPEED_DATA",
+    "notes": "Monitored August 2026 weekday morning peak (07:00-09:00)"
+  },
+  {
+    "route_id": "Q30",
+    "borough": "Queens",
+    "speed_mph": null,
+    "trip_count": 0,
+    "wait_assessment_peak_pct": 70.1,
+    "wait_assessment_offpeak_pct": 79.1,
+    "status": "DATA_GAP_UNMEASURED_SPEED",
+    "notes": "Route-specific speed gap acknowledged; do not extrapolate Brooklyn speeds."
+  },
+  {
+    "route_id": "Bx8",
+    "borough": "Bronx",
+    "speed_mph": null,
+    "trip_count": 0,
+    "wait_assessment_peak_pct": 67.1,
+    "wait_assessment_offpeak_pct": 70.9,
+    "status": "DATA_GAP_UNMEASURED_SPEED",
+    "notes": "Route-specific speed gap acknowledged; do not extrapolate Brooklyn speeds."
+  }
+]

@@ -1,0 +1,305 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.795,
+            40.7225
+          ],
+          [
+            -73.972,
+            40.758
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M01",
+        "market_name": "Fresh Meadows to Midtown",
+        "total_min": 55.6,
+        "walk_min": 17.7,
+        "wait_min": 2.5,
+        "in_vehicle_min": 35.4,
+        "legs_summary": "WALK: 7.5m [Origin -> UTOPIA PKWY/ST JOHNS UNIVERSITY] | BUS (Q30): 6.9m [UTOPIA PKWY/ST JOHNS UNIVERSITY -> HILLSIDE AV/169 ST] | WALK: 3.0m [HILLSIDE AV/169 ST -> 169 St] | SUBWAY (F): 28.5m [169 St -> Lexington Av/53 St] | WALK: 7.2m [Lexington Av/53 St -> Destination]",
+        "verification_status": "VERIFIED_OTP_ROUTING",
+        "origin_lat": 40.7225,
+        "origin_lon": -73.795,
+        "dest_lat": 40.758,
+        "dest_lon": -73.972
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.738,
+            40.665
+          ],
+          [
+            -74.008,
+            40.71
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M02",
+        "market_name": "Rosedale to Lower Manhattan",
+        "total_min": 61.9,
+        "walk_min": 18.9,
+        "wait_min": 3.5,
+        "in_vehicle_min": 39.5,
+        "legs_summary": "WALK: 5.2m [Origin -> Rosedale] | RAIL: 27.0m [Rosedale -> Nostrand Avenue] | WALK: 8.5m [Nostrand Avenue -> Nostrand Av] | SUBWAY (A): 12.5m [Nostrand Av -> Fulton St] | WALK: 5.2m [Fulton St -> Destination]",
+        "verification_status": "VERIFIED_OTP_ROUTING",
+        "origin_lat": 40.665,
+        "origin_lon": -73.738,
+        "dest_lat": 40.71,
+        "dest_lon": -74.008
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.83,
+            40.7598
+          ],
+          [
+            -73.91,
+            40.7
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M03",
+        "market_name": "Flushing to Ridgewood",
+        "total_min": 55.2,
+        "walk_min": 14.2,
+        "wait_min": 6.0,
+        "in_vehicle_min": 35.0,
+        "legs_summary": "WALK: 5.2m [Origin -> Flushing Main Street] | RAIL: 10.0m [Flushing Main Street -> Woodside] | RAIL: 9.0m [Woodside -> Jamaica] | RAIL: 8.0m [Jamaica -> East New York] | WALK: 4.5m [East New York -> Atlantic Av] | SUBWAY (L): 8.0m [Atlantic Av -> Myrtle-Wyckoff Avs] | WALK: 4.5m [Myrtle-Wyckoff Avs -> Destination]",
+        "verification_status": "VERIFIED_OTP_ROUTING",
+        "origin_lat": 40.7598,
+        "origin_lon": -73.83,
+        "dest_lat": 40.7,
+        "dest_lon": -73.91
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.905,
+            40.72
+          ],
+          [
+            -73.933,
+            40.707
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M04",
+        "market_name": "Maspeth to Bushwick",
+        "total_min": 22.0,
+        "walk_min": 9.0,
+        "wait_min": 0.0,
+        "in_vehicle_min": 13.0,
+        "legs_summary": "WALK: 2.6m [Origin -> FLUSHING AV/61 ST] | BUS (B57): 13.0m [FLUSHING AV/61 ST -> FLUSHING AV/KNICKERBOCKER AV] | WALK: 6.3m [FLUSHING AV/KNICKERBOCKER AV -> Destination]",
+        "verification_status": "VERIFIED_OTP_ROUTING",
+        "origin_lat": 40.72,
+        "origin_lon": -73.905,
+        "dest_lat": 40.707,
+        "dest_lon": -73.933
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.915,
+            40.615
+          ],
+          [
+            -73.987,
+            40.693
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M05",
+        "market_name": "Mill Basin to Downtown Brooklyn",
+        "total_min": 58.2,
+        "walk_min": 14.3,
+        "wait_min": 4.8,
+        "in_vehicle_min": 39.0,
+        "legs_summary": "WALK: 0.9m [Origin -> AVENUE U/MILL AV] | BUS (B3): 5.0m [AVENUE U/MILL AV -> AVENUE U/FLATBUSH AV] | WALK: 0.5m [AVENUE U/FLATBUSH AV -> FLATBUSH AV/AVENUE U] | BUS (Q35): 11.0m [FLATBUSH AV/AVENUE U -> AVENUE H/FLATBUSH AV] | WALK: 5.1m [AVENUE H/FLATBUSH AV -> Flatbush Av-Brooklyn College] | SUBWAY (5): 23.0m [Flatbush Av-Brooklyn College -> Borough Hall] | WALK: 7.8m [Borough Hall -> Destination]",
+        "verification_status": "VERIFIED_OTP_ROUTING",
+        "origin_lat": 40.615,
+        "origin_lon": -73.915,
+        "dest_lat": 40.693,
+        "dest_lon": -73.987
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.902,
+            40.645
+          ],
+          [
+            -74.01,
+            40.65
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M06",
+        "market_name": "Canarsie to Sunset Park",
+        "total_min": 59.6,
+        "walk_min": 23.8,
+        "wait_min": 4.3,
+        "in_vehicle_min": 31.5,
+        "legs_summary": "WALK: 6.5m [Origin -> Canarsie-Rockaway Pkwy] | SUBWAY (L): 8.0m [Canarsie-Rockaway Pkwy -> Atlantic Av] | WALK: 4.5m [Atlantic Av -> East New York] | RAIL: 12.0m [East New York -> Atlantic Terminal] | WALK: 7.7m [Atlantic Terminal -> Atlantic Av-Barclays Ctr] | SUBWAY (R): 11.5m [Atlantic Av-Barclays Ctr -> 45 St] | WALK: 5.0m [45 St -> Destination]",
+        "verification_status": "VERIFIED_OTP_ROUTING",
+        "origin_lat": 40.645,
+        "origin_lon": -73.902,
+        "dest_lat": 40.65,
+        "dest_lon": -74.01
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.815,
+            40.825
+          ],
+          [
+            -73.9772,
+            40.7527
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M07",
+        "market_name": "Throggs Neck to Grand Central",
+        "total_min": 71.2,
+        "walk_min": 8.4,
+        "wait_min": 4.3,
+        "in_vehicle_min": 58.5,
+        "legs_summary": "WALK: 0.9m [Origin -> THROGS NECK EXPWY/VETERANS MEMORIAL PARK] | BUS (Bx8): 16.0m [THROGS NECK EXPWY/VETERANS MEMORIAL PARK -> CROSBY AV/BUHRE AV] | WALK: 3.1m [CROSBY AV/BUHRE AV -> Buhre Av] | SUBWAY (6X): 42.5m [Buhre Av -> Grand Central-42 St] | WALK: 4.3m [Grand Central-42 St -> Destination]",
+        "verification_status": "VERIFIED_OTP_ROUTING",
+        "origin_lat": 40.825,
+        "origin_lon": -73.815,
+        "dest_lat": 40.7527,
+        "dest_lon": -73.9772
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -73.908,
+            40.86
+          ],
+          [
+            -73.827,
+            40.852
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M08",
+        "market_name": "Univ Hts to Pelham Bay",
+        "total_min": 38.7,
+        "walk_min": 7.7,
+        "wait_min": 0.0,
+        "in_vehicle_min": 31.0,
+        "legs_summary": "WALK: 6.1m [Origin -> WEST FORDHAM RD/UNIVERSITY AV] | BUS (Bx12): 31.0m [WEST FORDHAM RD/UNIVERSITY AV -> AMENDOLA PL/WESTCHESTER AV] | WALK: 1.6m [AMENDOLA PL/WESTCHESTER AV -> Destination]",
+        "verification_status": "VERIFIED_OTP_ROUTING",
+        "origin_lat": 40.86,
+        "origin_lon": -73.908,
+        "dest_lat": 40.852,
+        "dest_lon": -73.827
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -74.073,
+            40.643
+          ],
+          [
+            -74.015,
+            40.703
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M09",
+        "market_name": "St. George to Battery Park",
+        "total_min": 35.0,
+        "walk_min": 5.0,
+        "wait_min": 5.0,
+        "in_vehicle_min": 25.0,
+        "legs_summary": "Ferry crossing (~25m) + terminal dwell (~5m) + walk (~5m) [Derived from NYC DOT Ferry Published Timetable]",
+        "verification_status": "UNVERIFIED_BY_OTP_GRAPH (Ferry timetable not in GTFS graph)",
+        "origin_lat": 40.643,
+        "origin_lon": -74.073,
+        "dest_lat": 40.703,
+        "dest_lon": -74.015
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -74.165,
+            40.585
+          ],
+          [
+            -74.028,
+            40.622
+          ]
+        ]
+      },
+      "properties": {
+        "market_id": "M10",
+        "market_name": "New Springville to Bay Ridge",
+        "total_min": 67.0,
+        "walk_min": 4.4,
+        "wait_min": 0.0,
+        "in_vehicle_min": 62.6,
+        "legs_summary": "WALK: 3.2m [Origin -> STATEN ISLAND MALL AT RING RD/MACYS] | BUS (S79-SBS): 62.6m [STATEN ISLAND MALL AT RING RD/MACYS -> 4 AV/86 ST] | WALK: 1.2m [4 AV/86 ST -> Destination]",
+        "verification_status": "VERIFIED_OTP_ROUTING",
+        "origin_lat": 40.585,
+        "origin_lon": -74.165,
+        "dest_lat": 40.622,
+        "dest_lon": -74.028
+      }
+    }
+  ]
+}

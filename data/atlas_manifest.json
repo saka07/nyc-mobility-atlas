@@ -1,0 +1,65 @@
+{
+  "title": "NYC Urban Mobility Strategy  Interactive Citywide Atlas",
+  "version": "2.0.0-audited",
+  "generated_at": "2026-10-15T17:15:00Z",
+  "author": "Antigravity Transport Strategy Team",
+  "layers": {
+    "boroughs": {
+      "file": "data/nyc_boroughs.geojson",
+      "count": 5,
+      "source": "NYC Planning / NY Open Data"
+    },
+    "crz_geofence": {
+      "file": "data/nyc_crz_geofence.geojson",
+      "count": 7,
+      "source": "MTA CBD Tolling Program Geofence"
+    },
+    "gateways": {
+      "file": "data/crz_gateways.geojson",
+      "count": 12,
+      "source": "MTA Bridges & Tunnels 2025 Socrata t6yz-b64h"
+    },
+    "traffic_speeds": {
+      "file": "data/traffic_speeds_all_bands.geojson",
+      "count": 122,
+      "robust_count": 80,
+      "source": "NYC DOT ATMS Socrata i4gi-tjb9 (2024 vs 2025)"
+    },
+    "lodes_origins": {
+      "file": "data/census_tracts_commuter_lodes.geojson",
+      "count": 2327,
+      "source": "US Census Bureau LEHD LODES 2023 JT00 & NYC DOT CMS 2024"
+    },
+    "car_opportunity": {
+      "file": "data/census_tracts_car_opportunity.geojson",
+      "count": 2327,
+      "screened_count": 310,
+      "source": "US Census Bureau ACS 2018-2022 & Stage 2 Diagnostic Typology"
+    },
+    "subway_stations": {
+      "file": "data/transit_subway_stations.geojson",
+      "count": 496,
+      "source": "MTA Subway GTFS Parent Stations"
+    },
+    "bus_routes": {
+      "file": "data/transit_bus_routes_29.json",
+      "count": 31,
+      "source": "MTA Bus Segment Speeds kufs-yh3x & Wait Assessment Aug 2026"
+    },
+    "itineraries": {
+      "file": "data/otp_verified_10_itineraries.geojson",
+      "count": 10,
+      "source": "OpenTripPlanner v2.x Stage 6 GTFS Audits"
+    },
+    "scenarios": {
+      "file": "data/stage5_scenario_results.json",
+      "count": 72,
+      "source": "Stage 5 Multimodal Corridor Simulation Model"
+    },
+    "solutions": {
+      "file": "data/location_solutions.geojson",
+      "count": 4,
+      "source": "Location-Specific Public Transport Strategy Analysis"
+    }
+  }
+}

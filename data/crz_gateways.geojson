@@ -1,0 +1,305 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9632,
+          40.7618
+        ]
+      },
+      "properties": {
+        "gateway_id": 1,
+        "name": "East 60th St",
+        "region": "East 60th St",
+        "weekday_entries": 79465.0,
+        "share_pct": 15.53,
+        "cars_pickups_vans": 31712.0,
+        "single_unit_trucks": 3958.0,
+        "multi_unit_trucks": 229.0,
+        "buses": 2000.0,
+        "motorcycles": 675.0,
+        "tlc_taxi_fhv": 40891.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9575,
+          40.7592
+        ]
+      },
+      "properties": {
+        "gateway_id": 2,
+        "name": "FDR Drive at 60th St",
+        "region": "FDR Drive",
+        "weekday_entries": 53005.0,
+        "share_pct": 10.36,
+        "cars_pickups_vans": 32988.0,
+        "single_unit_trucks": 372.0,
+        "multi_unit_trucks": 3.0,
+        "buses": 528.0,
+        "motorcycles": 190.0,
+        "tlc_taxi_fhv": 18924.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0016,
+          40.7582
+        ]
+      },
+      "properties": {
+        "gateway_id": 3,
+        "name": "Lincoln Tunnel",
+        "region": "New Jersey",
+        "weekday_entries": 46784.0,
+        "share_pct": 9.14,
+        "cars_pickups_vans": 33378.0,
+        "single_unit_trucks": 3740.0,
+        "multi_unit_trucks": 390.0,
+        "buses": 1767.0,
+        "motorcycles": 122.0,
+        "tlc_taxi_fhv": 7388.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9698,
+          40.7445
+        ]
+      },
+      "properties": {
+        "gateway_id": 4,
+        "name": "Queens Midtown Tunnel",
+        "region": "Queens",
+        "weekday_entries": 46537.0,
+        "share_pct": 9.09,
+        "cars_pickups_vans": 25204.0,
+        "single_unit_trucks": 2358.0,
+        "multi_unit_trucks": 91.0,
+        "buses": 1220.0,
+        "motorcycles": 52.0,
+        "tlc_taxi_fhv": 17611.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9928,
+          40.7725
+        ]
+      },
+      "properties": {
+        "gateway_id": 5,
+        "name": "West Side Highway at 60th St",
+        "region": "West Side Highway",
+        "weekday_entries": 45931.0,
+        "share_pct": 8.97,
+        "cars_pickups_vans": 34008.0,
+        "single_unit_trucks": 308.0,
+        "multi_unit_trucks": 5.0,
+        "buses": 637.0,
+        "motorcycles": 98.0,
+        "tlc_taxi_fhv": 10874.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0118,
+          40.7265
+        ]
+      },
+      "properties": {
+        "gateway_id": 6,
+        "name": "Holland Tunnel",
+        "region": "New Jersey",
+        "weekday_entries": 41440.0,
+        "share_pct": 8.1,
+        "cars_pickups_vans": 29678.0,
+        "single_unit_trucks": 1745.0,
+        "multi_unit_trucks": 38.0,
+        "buses": 162.0,
+        "motorcycles": 26.0,
+        "tlc_taxi_fhv": 9791.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9723,
+          40.7135
+        ]
+      },
+      "properties": {
+        "gateway_id": 7,
+        "name": "Williamsburg Bridge",
+        "region": "Brooklyn",
+        "weekday_entries": 40196.0,
+        "share_pct": 7.85,
+        "cars_pickups_vans": 23238.0,
+        "single_unit_trucks": 2180.0,
+        "multi_unit_trucks": 107.0,
+        "buses": 272.0,
+        "motorcycles": 125.0,
+        "tlc_taxi_fhv": 14273.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9875,
+          40.7702
+        ]
+      },
+      "properties": {
+        "gateway_id": 8,
+        "name": "West 60th St",
+        "region": "West 60th St",
+        "weekday_entries": 39414.0,
+        "share_pct": 7.7,
+        "cars_pickups_vans": 13880.0,
+        "single_unit_trucks": 2385.0,
+        "multi_unit_trucks": 162.0,
+        "buses": 1028.0,
+        "motorcycles": 342.0,
+        "tlc_taxi_fhv": 21616.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9578,
+          40.757
+        ]
+      },
+      "properties": {
+        "gateway_id": 9,
+        "name": "Queensboro Bridge",
+        "region": "Queens",
+        "weekday_entries": 38869.0,
+        "share_pct": 7.59,
+        "cars_pickups_vans": 17809.0,
+        "single_unit_trucks": 2547.0,
+        "multi_unit_trucks": 195.0,
+        "buses": 416.0,
+        "motorcycles": 167.0,
+        "tlc_taxi_fhv": 17734.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9908,
+          40.7075
+        ]
+      },
+      "properties": {
+        "gateway_id": 10,
+        "name": "Manhattan Bridge",
+        "region": "Brooklyn",
+        "weekday_entries": 29377.0,
+        "share_pct": 5.74,
+        "cars_pickups_vans": 16831.0,
+        "single_unit_trucks": 2122.0,
+        "multi_unit_trucks": 220.0,
+        "buses": 510.0,
+        "motorcycles": 125.0,
+        "tlc_taxi_fhv": 9568.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9969,
+          40.7061
+        ]
+      },
+      "properties": {
+        "gateway_id": 11,
+        "name": "Brooklyn Bridge",
+        "region": "Brooklyn",
+        "weekday_entries": 27906.0,
+        "share_pct": 5.45,
+        "cars_pickups_vans": 16236.0,
+        "single_unit_trucks": 177.0,
+        "multi_unit_trucks": 2.0,
+        "buses": 80.0,
+        "motorcycles": 74.0,
+        "tlc_taxi_fhv": 11337.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -74.0145,
+          40.7025
+        ]
+      },
+      "properties": {
+        "gateway_id": 12,
+        "name": "Hugh L. Carey Tunnel",
+        "region": "Brooklyn",
+        "weekday_entries": 22905.0,
+        "share_pct": 4.48,
+        "cars_pickups_vans": 16066.0,
+        "single_unit_trucks": 629.0,
+        "multi_unit_trucks": 16.0,
+        "buses": 1376.0,
+        "motorcycles": 50.0,
+        "tlc_taxi_fhv": 4766.0,
+        "baseline_context": "~600,000 pre-tolling baseline",
+        "post_tolling_context": "511,829 observed 2025 weekday crossing sum (part of ~533,000 post-tolling cordon average)"
+      }
+    }
+  ]
+}

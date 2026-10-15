@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spatial Dataset Lineage & Manifest | NYC Mobility Strategy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+  
+    <!-- TOP EXECUTIVE BANNER -->
+    <header class="h-[68px] bg-slate-950 text-white flex items-center justify-between px-6 border-b border-slate-800 shrink-0">
+      <div class="flex items-center space-x-3">
+        <a href="index.html" class="w-9 h-9 rounded-lg bg-sky-600 flex items-center justify-center font-extrabold text-white shadow-lg text-base tracking-wider hover:bg-sky-500">NYC</a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold tracking-tight text-white">NYC Urban Mobility Strategy</h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">Analytical Domain Deep Dive</span>
+          </div>
+          <p class="text-xs text-slate-400">Interactive Citywide Atlas &mdash; Official Spatial Evidence Baseline</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3 text-xs">
+        <a href="index.html" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow">
+          <span>Launch Full Interactive Map</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- HORIZONTAL SUB-NAV -->
+    <nav class="bg-slate-900 border-b border-slate-800 px-4 py-1.5 flex items-center space-x-1 overflow-x-auto text-xs shrink-0">
+      <a href="index.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">Atlas Main</a><a href="page_1_citywide_overview.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">1. Citywide Overview</a><a href="page_2_congestion_pricing.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">2. Congestion Pricing</a><a href="page_3_traffic_performance.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">3. Highway Speeds</a><a href="page_4_commuter_origins.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">4. Commuter Origins</a><a href="page_5_car_dependence_opportunity.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">5. Car Dependence</a><a href="page_6_transit_network.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">6. Transit Network</a><a href="page_7_bus_operations.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">7. Bus Corridors</a><a href="page_8_journey_analysis.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">8. Multimodal Journeys</a><a href="page_9_intervention_scenarios.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">9. Scenario Matrix</a><a href="page_10_government_solutions.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap text-slate-300 hover:bg-slate-800 hover:text-white">10. Targeted Solutions</a><a href="manifest.html" class="px-3 py-1.5 rounded text-xs whitespace-nowrap bg-sky-600 text-white font-semibold">Spatial Manifest</a>
+    </nav>
+    
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+    
+    <div class="space-y-4">
+      <div class="border-b border-slate-200 pb-3">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Data Lineage &amp; Manifest</span>
+        <h2 class="text-2xl font-black text-slate-900 mt-1">Spatial Dataset Lineage &amp; Verification Catalog</h2>
+        <p class="text-sm text-slate-600 mt-0.5">Authoritative registry of all 11 spatial layers, official government source IDs, row counts, and data governance caveats</p>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <table class="w-full text-xs text-left">
+          <thead class="bg-slate-50 text-slate-500 border-b border-slate-200 font-semibold">
+            <tr>
+              <th class="py-2.5 px-3">Dataset Name</th>
+              <th class="py-2.5 px-3">File Path</th>
+              <th class="py-2.5 px-3">Source &amp; Endpoint</th>
+              <th class="py-2.5 px-3 text-right">Entities</th>
+              <th class="py-2.5 px-3">Governance / Limitation</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-700">
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">NYC Borough Boundaries</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/nyc_boroughs.geojson</td>
+              <td class="py-2.5 px-3">NYC Planning Bytes of the Big Apple</td>
+              <td class="py-2.5 px-3 text-right font-semibold">5</td>
+              <td class="py-2.5 px-3 text-slate-500">Geometry simplified to 139 KB for instant web rendering.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Manhattan CRZ Geofence</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/nyc_crz_geofence.geojson</td>
+              <td class="py-2.5 px-3">MTA CBD Tolling Program Geofence</td>
+              <td class="py-2.5 px-3 text-right font-semibold">1</td>
+              <td class="py-2.5 px-3 text-slate-500">Authoritative geofence replacing hand-drawn polygons.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Tolling Gateways (12)</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/crz_gateways.geojson</td>
+              <td class="py-2.5 px-3">MTA Tolling Data (t6yz-b64h)</td>
+              <td class="py-2.5 px-3 text-right font-semibold">12</td>
+              <td class="py-2.5 px-3 text-slate-500">Sums to 511,829 observed weekday entries; excludes highway diversions.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Highway Traffic Speeds</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/traffic_speeds_all_bands.geojson</td>
+              <td class="py-2.5 px-3">NYC DOT Socrata ATMS (i4gi-tjb9)</td>
+              <td class="py-2.5 px-3 text-right font-semibold">122 (80 robust)</td>
+              <td class="py-2.5 px-3 text-slate-500">5 time bands; BQE link 4616229 flagged for planned deck repairs.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Commuter Origins (LODES)</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/census_tracts_commuter_lodes.geojson</td>
+              <td class="py-2.5 px-3">US Census LEHD LODES 2023 JT00</td>
+              <td class="py-2.5 px-3 text-right font-semibold">2,327</td>
+              <td class="py-2.5 px-3 text-slate-500">Measures formal employer payroll jobs, not driver modal choices.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Car Dependence Typology</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/census_tracts_car_opportunity.geojson</td>
+              <td class="py-2.5 px-3">US Census ACS 2018&ndash;2022 Table B08301</td>
+              <td class="py-2.5 px-3 text-right font-semibold">2,327</td>
+              <td class="py-2.5 px-3 text-slate-500">310 screened priority tracts labeled as preliminary candidates.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Subway Parent Stations</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/transit_subway_stations.geojson</td>
+              <td class="py-2.5 px-3">MTA Subway GTFS (stops.txt)</td>
+              <td class="py-2.5 px-3 text-right font-semibold">496</td>
+              <td class="py-2.5 px-3 text-slate-500">Filtered for location_type == 1; duplicate platforms removed.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Bus Speed Performance</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/transit_bus_routes_29.json</td>
+              <td class="py-2.5 px-3">MTA Bus Speeds (kufs-yh3x)</td>
+              <td class="py-2.5 px-3 text-right font-semibold">29 + 2 gaps</td>
+              <td class="py-2.5 px-3 text-amber-700 font-semibold">Q30 and Bx8 explicitly disclosed as 0% coverage data gaps.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Door-to-Door Multimodal</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/otp_verified_10_itineraries.geojson</td>
+              <td class="py-2.5 px-3">OpenTripPlanner Graph Engine</td>
+              <td class="py-2.5 px-3 text-right font-semibold">10</td>
+              <td class="py-2.5 px-3 text-slate-500">Audited transit legs isolating walking, waiting, and rail/bus runs.</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Simulation Matrix (Stage 5)</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/stage5_scenario_results.json</td>
+              <td class="py-2.5 px-3">Stage 5 Multimodal Scenario Model</td>
+              <td class="py-2.5 px-3 text-right font-semibold">72</td>
+              <td class="py-2.5 px-3 text-slate-500">Deterministic schedule evaluation (S0 vs S1, S2, S3).</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-900">Location Solutions (C01&ndash;C04)</td>
+              <td class="py-2.5 px-3 font-mono text-[11px]">data/location_solutions.geojson</td>
+              <td class="py-2.5 px-3">NYC Mobility Strategy Policy Matrix</td>
+              <td class="py-2.5 px-3 text-right font-semibold">4</td>
+              <td class="py-2.5 px-3 text-slate-500">Candidate corridors subject to pilot testing and demand verification.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </main>
+  <footer class="bg-slate-900 border-t border-slate-800 py-6 px-6 text-center text-xs text-slate-400 mt-12">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <div>NYC Urban Mobility Strategy &mdash; Interactive Citywide Atlas Deliverable</div>
+      <div class="text-[11px] text-slate-500 font-mono">Statutory Compliance: Public Authorities Law Section 553-j (80% NYCT / 10% LIRR / 10% Metro-North)</div>
+      <div class="flex gap-4">
+        <a href="index.html" class="hover:text-white">Main Atlas</a>
+        <a href="manifest.html" class="hover:text-white">Data Lineage</a>
+      </div>
+    </div>
+  </footer>
+  
+</body>
+</html>
