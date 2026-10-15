@@ -202,7 +202,8 @@ function initMapLayers() {
       weight: 2.5,
       opacity: 1,
       fillColor: C.orange,
-      fillOpacity: 0.07
+      fillOpacity: 0.07,
+      interactive: false
     },
     onEachFeature: (feature, layer) => {
       layer.bindTooltip(`<strong>Congestion pricing zone</strong><br>Manhattan south of 60th St`, { sticky: true });
@@ -542,12 +543,12 @@ function renderOverviewModule() {
     legendRow(dot(C.mid), 'Subway station (496)'),
     legendRow(line(C.mid), 'Borough boundary')
   ]));
-  updateDrawerHeader('Where things stand', 'Congestion pricing cut traffic. This atlas asks where transit money should go next.', 'Overview');
+  updateDrawerHeader('Fix the trip to the train, starting in Eastern Queens', 'Congestion pricing cut traffic. Many outer-borough commuters still drive because the walk, wait and bus to the subway are slow.', 'Overview');
   updateKPIs([
-    { label: 'Fewer vehicles a day', val: '67,000', sub: 'entering the zone (−11%), first 6 months' },
-    { label: 'Zone jobs held by New Yorkers', val: '1.24M', sub: 'US Census, 2023' },
-    { label: 'Held by Brooklyn + Queens', val: '52.8%', sub: '653,842 of 1,239,262' },
-    { label: 'Bronx car trips to Manhattan', val: '102,489', sub: 'a day; about 2.8× Queens' }
+    { label: 'Fewer vehicles a day', val: '67,000', sub: 'entering the zone (−11%)' },
+    { label: 'Zone workers from Brooklyn + Queens', val: '52.8%', sub: '653,842 of 1.24 million' },
+    { label: 'Walking and waiting', val: '13–22 min', sub: 'of a typical outer-borough trip' },
+    { label: 'Saved in the model test', val: '6–12.5 min', sub: 'per trip on Union Turnpike' }
   ]);
   renderChart('bar', {
     labels: Object.keys(ZONE_JOBS),
@@ -693,7 +694,7 @@ function renderOpportunityModule() {
     labels: ['Under 10%', '10–25%', '25–40%', '40–60%', 'Over 60%'],
     datasets: [{ label: 'Census tracts', data: bins, backgroundColor: ['#f8e6dc', '#efbfa8', '#d6754f', '#a8441f', '#5f2713'] }]
   }, 'Census tracts by share driving alone', 'US Census, 2018–2022');
-  setPolicyNote('The shortlist is a first screen using modelled car times. It points to places worth studying, not final investment decisions.');
+  setPolicyNote('The shortlist is a first screen using modelled car times. It points to places worth studying, not final decisions.');
 }
 
 function toggleScreenedOpportunity(val) {
@@ -743,7 +744,7 @@ function renderBusesModule() {
     labels: ten.map(r => r.route_id),
     datasets: [{ label: 'Morning speed (mph)', data: ten.map(r => r.speed_mph), backgroundColor: ten.map(r => r.speed_mph < 7 ? C.orange : C.grey) }]
   }, 'The 10 slowest measured routes (mph)', 'MTA, Aug 2026', { indexAxis: 'y' });
-  setPolicyNote('The Q30 and Bx8 are not in the MTA data. Other routes\' numbers cannot stand in for them, so measure them before spending.');
+  setPolicyNote('The Q30 and Bx8 are not in the MTA data. Other routes\' numbers cannot stand in for them, so measure them first.');
 }
 
 // MODULE 8: Journeys
@@ -866,25 +867,25 @@ function updateScenarioSelection() {
 
 // MODULE 10: Solutions
 function renderSolutionsModule() {
-  updateToolbar(toolbarTitle('What to fund', 'Four candidate corridors, each to be tested before full spending'));
+  updateToolbar(toolbarTitle('What to do first', 'Four candidate corridors, each to be tested first'));
   updateLegend(legendBox('Candidate corridors', [
     legendRow(line(C.orange), 'C04 Union Turnpike buses + Kew Gardens (start here)'),
     legendRow(line(C.brick), 'C01 Fresh Meadows → Midtown'),
     legendRow(line(C.dark), 'C02 Throggs Neck → Midtown'),
     legendRow(line(C.steel), 'C03 Rosedale → Lower Manhattan')
   ], 'Lines join start and end. Click one for the problem, the fix and what still needs measuring.'));
-  updateDrawerHeader('Start in Eastern Queens, then measure before spending more', 'Candidate projects; none approved', 'What to fund');
+  updateDrawerHeader('Start in Eastern Queens, then measure the Q30 and Bx8', 'Proposals to test; none approved yet', 'What to do first');
   updateKPIs([
     { label: 'Candidate corridors', val: '4', sub: 'all proposed for testing' },
     { label: 'Modelled so far', val: '1', sub: 'Union Tpke: 8.7 min average saving' },
-    { label: 'Toll money split', val: '80 / 10 / 10', sub: 'subway & bus / LIRR / Metro-North' },
+    { label: 'First pilot', val: 'Union Tpke', sub: 'Q46 bus lanes + Kew Gardens transfer' },
     { label: 'Measure first', val: 'Q30, Bx8', sub: 'speed and reliability' }
   ]);
   renderChart('bar', {
     labels: ['Eastern Queens', 'East Bronx', 'Southeast Queens'],
     datasets: [{ label: 'Residents working in the zone', data: [2649, 1454, 651], backgroundColor: [C.orange, C.grey, C.grey] }]
   }, 'Zone jobs held by residents of each candidate area', 'US Census, 2023');
-  setPolicyNote('Toll money can only pay for capital projects (NY Public Authorities Law §553-j), not day-to-day running costs. Costs still need engineering estimates.');
+  setPolicyNote('');
 }
 
 // Feature Inspectors
@@ -994,7 +995,7 @@ function inspectBusRoute(b) {
       <div class="p-2 bg-amber-50 border border-amber-200 rounded text-amber-900 text-[11px] mt-2 space-y-1">
         <div class="font-bold">Not measured yet</div>
         <div>Route ${b.id} is <strong>not monitored</strong> in the MTA August 2026 29-route speed file.</div>
-        <div>There are no speed or reliability figures for this route, so measure it before funding fixes.</div>
+        <div>There are no speed or reliability figures for this route, so measure it before planning fixes.</div>
       </div>
     ` : `
       <div class="border-t border-slate-100 my-1.5 pt-1 text-[11px] space-y-1">
@@ -1104,7 +1105,8 @@ function renderChart(type, data, title, source, opts) {
 }
 
 function setPolicyNote(text) {
-  document.getElementById('policy-note-text').innerText = text;
+  const el = document.getElementById('policy-note-text');
+  if (el) el.innerText = text;
 }
 
 // Global Search
@@ -1187,8 +1189,8 @@ function toggleDrawer() {
 
 // Step-by-step navigation through the ten views
 const STEPS = [['overview', 'Overview'], ['congestion', 'Congestion pricing'], ['traffic', 'Highway speeds'], ['origins', 'Who travels'],
-  ['opportunity', 'Car dependence'], ['transit', 'Subway network'], ['buses', 'Bus speeds'], ['journeys', 'Door-to-door trips'],
-  ['scenarios', 'Model test'], ['solutions', 'What to fund']];
+  ['buses', 'Bus speeds'], ['journeys', 'Door-to-door trips'],
+  ['scenarios', 'Model test'], ['solutions', 'What to do first']];
 function renderStepNav(modId) {
   const el = document.getElementById('step-nav');
   if (!el) return;
@@ -1197,7 +1199,9 @@ function renderStepNav(modId) {
   el.innerHTML = `
     ${prev ? `<button onclick="setModule('${prev[0]}')" class="step-btn text-left"><small>&larr; Step ${i}</small><b>${prev[1]}</b></button>` : '<span></span>'}
     <span class="text-[11px] text-slate-500 self-center whitespace-nowrap">${i + 1} of ${STEPS.length}</span>
-    ${next ? `<button onclick="setModule('${next[0]}')" class="step-btn text-right"><small>Step ${i + 2} &rarr;</small><b>${next[1]}</b></button>` : `<a href="about.html" class="step-btn text-right no-underline"><small>Next &rarr;</small><b>How I did this</b></a>`}`;
+    ${next ? `<button onclick="setModule('${next[0]}')" class="step-btn text-right"><small>Step ${i + 2} &rarr;</small><b>${next[1]}</b></button>` : '<span></span>'}`;
+  const reco = document.getElementById('reco');
+  if (reco) reco.style.display = modId === 'solutions' ? 'none' : '';
   const tab = document.getElementById('btn-' + modId);
   if (tab && tab.scrollIntoView) tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   const body = document.getElementById('drawer-body');
