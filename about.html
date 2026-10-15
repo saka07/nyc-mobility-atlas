@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How I did this | NYC Mobility Atlas</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%231a1a1a%27/%3E%3Crect x=%274%27 y=%274%27 width=%278%27 height=%278%27 fill=%27%23c8532a%27/%3E%3C/svg%3E">
+<meta name="description" content="Congestion pricing cut traffic into Manhattan. Six interactive exhibits on who still drives in, why transit is slow, and where to invest first.">
+<meta property="og:title" content="Where should NYC transit money go next?">
+<meta property="og:description" content="Six interactive exhibits built from public data.">
+<style>
+:root{--ink:#1a1a1a;--mute:#5c5c5c;--line:#d9d9d9;--bg:#fff;--soft:#f4f4f4;--acc:#c8532a}
+*{box-sizing:border-box}body{margin:0;font:16px/1.55 Arial,Helvetica,sans-serif;color:var(--ink);background:var(--bg)}
+.w{max-width:1040px;margin:0 auto;padding:0 24px}
+header{border-bottom:1px solid var(--line)}header .w{display:flex;justify-content:space-between;padding:16px 24px;font-size:14px;color:var(--mute)}
+.hero{padding:56px 0 40px}.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:700;margin:0 0 12px}
+h1{font-size:clamp(28px,4.6vw,44px);line-height:1.15;margin:0 0 16px;max-width:20em}.lede{font-size:19px;color:var(--mute);max-width:40em;margin:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);margin:40px 0 0}
+.stat{padding:18px 18px 18px 0}.stat b{display:block;font-size:34px;line-height:1.1}.stat span{font-size:14px;color:var(--mute)}
+h2{font-size:24px;margin:56px 0 6px}.sub{color:var(--mute);margin:0 0 22px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{display:block;background:var(--soft);padding:20px;text-decoration:none;color:inherit;border-top:3px solid transparent;transition:border-color .15s}
+.card:hover{border-top-color:var(--acc)}.card .n{font-size:13px;color:var(--acc);font-weight:700}.card h3{margin:4px 0 6px;font-size:18px}
+.card p{margin:0 0 14px;font-size:15px;color:var(--mute)}.go{font-size:14px;font-weight:700}
+ol.steps{padding:0;margin:0;list-style:none;counter-reset:s;display:grid;grid-template-columns:repeat(2,1fr);gap:16px 32px}
+ol.steps li{counter-increment:s;padding-left:44px;position:relative}
+ol.steps li:before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;background:var(--ink);color:#fff;text-align:center;line-height:30px;font-weight:700;font-size:14px}
+ol.steps b{display:block}ol.steps span{color:var(--mute);font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:14.5px}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);border-bottom:1px solid var(--ink)}
+.limits{background:var(--soft);padding:22px 24px}.limits ul{margin:8px 0 0;padding-left:20px}.limits li{margin:4px 0}
+footer{margin-top:64px;border-top:1px solid var(--line);padding:22px 0 40px;font-size:13.5px;color:var(--mute)}
+.tw{overflow-x:auto}
+a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.card{transition:border-color .15s,background-color .15s}.card:hover{background:#eeeeee}.card:hover .go{color:var(--acc)}
+html{scroll-behavior:smooth}@media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+.dl{margin:22px 0 0;display:flex;gap:12px;flex-wrap:wrap}.dl a{padding:10px 16px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid var(--ink);color:var(--ink)}.dl a:first-child{background:var(--ink);color:#fff}.dl a:hover{border-color:var(--acc)}
+@media(max-width:820px){.stats{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr 1fr}ol.steps{grid-template-columns:1fr}}
+@media(max-width:560px){.cards{grid-template-columns:1fr}.hero{padding-top:36px}}
+</style></head><body>
+<header><div class="w"><a href="index.html" style="color:inherit;text-decoration:none;font-weight:700">&larr; NYC Mobility Atlas</a><span>How I did this</span></div></header>
+<main class="w">
+<section class="hero"><p class="eyebrow">Congestion pricing and outer-borough transit</p>
+<h1>Congestion pricing cut traffic. Where should transit money go next?</h1>
+<p class="lede">Traffic into the zone is down. This site shows who still drives in from the outer boroughs, why transit is slow for them, and where a first fix would help most.</p>
+<p class="dl"><a href="index.html">Open the interactive atlas</a><a href="NYC_Mobility_Strategy.pdf">Briefing deck (PDF)</a><a href="NYC_Mobility_Strategy.pptx">PowerPoint</a></p>
+<div class="stats">
+<div class="stat"><b>67,000</b><span>fewer vehicles a day entering the zone (11%)</span></div>
+<div class="stat"><b>52.8%</b><span>of zone jobs filled by New Yorkers go to Brooklyn and Queens residents</span></div>
+<div class="stat"><b>102,489</b><span>daily car trips from the Bronx to Manhattan, about 2.8&times; Queens</span></div>
+<div class="stat"><b>6&ndash;12.5 min</b><span>saved per trip in a model test on Union Turnpike</span></div>
+</div></section>
+
+<h2>Explore the six exhibits</h2><p class="sub">Each one has a map or chart you can click, a plain-English headline, and its sources.</p>
+<div class="cards"><a class="card" href="exhibits/Exhibit_1_Congestion_Pricing.html"><span class="n">1</span><h3>Traffic fell</h3><p>About 67,000 fewer vehicles a day (11%) now enter the zone. Map of the 12 crossings.</p><span class="go">Open exhibit &rarr;</span></a>
+<a class="card" href="exhibits/Exhibit_2_Highway_Speeds.html"><span class="n">2</span><h3>Highway speeds were mixed</h3><p>Of 80 roads checked, 13 got faster, 45 stayed the same and 22 got slower.</p><span class="go">Open exhibit &rarr;</span></a>
+<a class="card" href="exhibits/Exhibit_3_Travel_Origins.html"><span class="n">3</span><h3>Who travels, and from where</h3><p>Brooklyn and Queens residents hold over half the zone jobs that New Yorkers fill. The Bronx sends the most drivers.</p><span class="go">Open exhibit &rarr;</span></a>
+<a class="card" href="exhibits/Exhibit_4_Transit_Journeys.html"><span class="n">4</span><h3>Why transit is slow</h3><p>Walking and waiting, not the ride, take the biggest share of three outer-borough trips.</p><span class="go">Open exhibit &rarr;</span></a>
+<a class="card" href="exhibits/Exhibit_5_Improvement_Scenarios.html"><span class="n">5</span><h3>What faster buses would save</h3><p>In a model test on Union Turnpike, trips get 6 to 12.5 minutes shorter.</p><span class="go">Open exhibit &rarr;</span></a>
+<a class="card" href="exhibits/Exhibit_6_Government_Decision.html"><span class="n">6</span><h3>What to fund, and in what order</h3><p>Funding rules, candidate areas and the checks needed before spending.</p><span class="go">Open exhibit &rarr;</span></a></div>
+
+<h2 id="method">How I got these numbers</h2><p class="sub">Four steps, from raw public data to a recommendation.</p>
+<ol class="steps">
+<li><b>Measure the result.</b><span>Compare vehicle entries before and after tolling, and highway speeds in the same months a year apart.</span></li>
+<li><b>Find who travels.</b><span>Match where zone workers live (census tracts) with how many drive (survey and census data).</span></li>
+<li><b>Trace the trip.</b><span>Model door-to-door journeys and split each into walking, waiting and riding to see what is slow.</span></li>
+<li><b>Test a fix.</b><span>Re-run Eastern Queens trips with faster buses and easier transfers, across 72 combinations of origin, destination and departure time.</span></li>
+</ol>
+
+<h2 id="sources">Data sources</h2><p class="sub">All public. Numbers in the exhibits can be traced to these.</p>
+<div class="tw"><table><thead><tr><th>Source</th><th>What I used it for</th><th>Period</th><th>Exhibit</th></tr></thead><tbody>
+<tr><td>MTA tolling report and NY Open Data (t6yz-b64h)</td><td>Daily vehicle entries before and after tolling; 12 crossings</td><td>Jan–Jun 2025</td><td>1</td></tr>
+<tr><td>NYC DOT traffic speeds</td><td>Morning-peak speed on 80 highway links, same months in 2024 and 2025</td><td>Mar–Jun</td><td>2</td></tr>
+<tr><td>Census LEHD LODES</td><td>Where people who work in the zone live, by census tract</td><td>2023</td><td>3</td></tr>
+<tr><td>Census ACS</td><td>Share of commuters who drive alone, by tract</td><td>2018–2022</td><td>3, 6</td></tr>
+<tr><td>NYC DOT Citywide Mobility Survey</td><td>Daily car trips into Manhattan, by borough</td><td>2024</td><td>3</td></tr>
+<tr><td>OpenTripPlanner</td><td>Door-to-door trip times: walking, waiting, riding</td><td>Modelled</td><td>4, 5</td></tr>
+<tr><td>MTA bus speeds and wait data</td><td>Average bus speed and on-time share on 29 routes</td><td>Aug 2026</td><td>4</td></tr>
+<tr><td>NY Public Authorities Law §553-j</td><td>How toll revenue may be spent: 80% subway and bus, 10% LIRR, 10% Metro-North</td><td>Law</td><td>6</td></tr>
+</tbody></table></div>
+
+<h2>What this does not show</h2>
+<div class="limits"><ul>
+<li>Jobs show where workers live, not whether they drive.</li>
+<li>Car trips are counted to all of Manhattan, not only the tolled zone.</li>
+<li>The Union Turnpike savings come from a model. They are not observed results.</li>
+<li>Speeds on the Q30 and Bx8 feeder buses have not been measured, so those fixes need a data check first.</li>
+<li>The 12 crossing counts add to 511,829 a weekday and use a different method from the official totals.</li>
+</ul></div>
+</main>
+<footer><div class="w">Map tiles &copy; OpenStreetMap contributors &copy; CARTO. Built from public data; sources listed above.</div></footer>
+</body></html>

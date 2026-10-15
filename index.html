@@ -3,239 +3,167 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NYC Urban Mobility Strategy - Interactive Citywide Atlas</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <title>NYC Mobility Atlas: congestion pricing and outer-borough transit</title>
+  <meta name="description" content="An interactive map of who still drives into Manhattan's congestion pricing zone, why transit is slow for them, and where to invest first.">
+  <meta property="og:title" content="NYC Mobility Atlas">
+  <meta property="og:description" content="Congestion pricing cut traffic. Where should transit money go next? Ten map views built from public data.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%231a1a1a%27/%3E%3Crect x=%274%27 y=%274%27 width=%278%27 height=%278%27 fill=%27%23c8532a%27/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="assets/site.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Google Fonts Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
   <style>
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .map-container { height: calc(100vh - 72px); }
-    .nav-tab.active { background-color: #0284c7; color: #ffffff; font-weight: 600; border-color: #0284c7; }
-    .nav-tab { transition: all 0.15s ease; }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    .leaflet-popup-content-wrapper { border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.25); padding: 4px; font-size: 13px; }
-    .legend-box { box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+    html, body { height: 100%; }
+    body { font-family: Arial, Helvetica, sans-serif; }
+    .nav-tab { border-bottom: 3px solid transparent; transition: color .15s, border-color .15s, background-color .15s; }
+    .nav-tab:hover { color: #1a1a1a; background: #f2f2f2; }
+    .nav-tab.active { color: #1a1a1a; font-weight: 700; border-bottom-color: #c8532a; }
+    .nav-tab .n { color: #8a8a8a; font-weight: 700; margin-right: 6px; }
+    .nav-tab.active .n { color: #c8532a; }
+    #intel-drawer { width: 420px; transition: width .3s ease; }
+    #intel-drawer.collapsed { width: 0; border-left-width: 0; }
+    .thin-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .thin-scroll::-webkit-scrollbar-thumb { background: #cfcfcf; }
+    .thin-scroll::-webkit-scrollbar-track { background: transparent; }
+    .menu summary { list-style: none; cursor: pointer; }
+    .menu summary::-webkit-details-marker { display: none; }
+    .menu[open] summary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .menu a { display: block; padding: 7px 14px; color: #2b2b2b; text-decoration: none; font-size: 13px; }
+    .menu a:hover { background: #f2f2f2; color: #c8532a; }
+    .btn { border: 1px solid #d0d0d0; background: #fff; padding: 6px 12px; font-size: 13px; color: #1a1a1a; transition: border-color .15s, color .15s; }
+    .btn:hover { border-color: #1a1a1a; }
+    a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid #c8532a; outline-offset: 2px; }
+    .step-btn { display: block; padding: 8px 10px; border: 1px solid #e2e2e2; background: #fff; min-width: 0; transition: border-color .15s; }
+    .step-btn:hover { border-color: #1a1a1a; }
+    .step-btn small { display: block; font-size: 11px; color: #8a8a8a; }
+    .step-btn b { display: block; font-size: 13px; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .leaflet-container { font: 13px/1.45 Arial, Helvetica, sans-serif; background: #eef0f1; }
+    .leaflet-tooltip.atlas-tip { background: #1a1a1a; color: #fff; border: 0; border-radius: 0; padding: 8px 10px; box-shadow: 0 2px 10px rgba(0,0,0,.25); font-size: 12.5px; line-height: 1.45; }
+    .leaflet-tooltip.atlas-tip:before { display: none; }
+    .leaflet-bar a { border-radius: 0 !important; color: #1a1a1a; }
+    .leaflet-interactive { cursor: pointer; }
+    .bus-label { background: rgba(255,255,255,.92); border: 1px solid #d0d0d0; padding: 1px 5px; font-size: 11.5px; font-weight: 700; color: #1a1a1a; white-space: nowrap; width: auto !important; height: auto !important; }
+    #map-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1200; background: rgba(238,240,241,.85); font-size: 14px; color: #5c5c5c; }
+    #map-loading span { padding: 10px 16px; background: #fff; border: 1px solid #e2e2e2; }
+    @media (max-width: 900px) {
+      body { overflow: auto !important; height: auto; }
+      main { flex-direction: column; overflow: visible !important; }
+      #map-wrap { height: 62vh; flex: none; }
+      #intel-drawer, #intel-drawer.collapsed { width: 100% !important; border-left-width: 0; border-top: 1px solid #e2e2e2; height: auto !important; }
+      #drawer-body { overflow: visible !important; }
+      #drawer-toggle-btn, .hide-sm { display: none !important; }
+      #map-legend { max-width: 62vw; font-size: 11px; padding: 8px 10px; bottom: 22px; }
+      #map-legend .lg-foot, #map-toolbar .tb-sub { display: none; }
+      #map-toolbar { left: 52px !important; right: 8px; max-width: none !important; flex-wrap: wrap; gap: 6px 10px; padding: 6px 8px; font-size: 12px; }
+      #map-toolbar .whitespace-nowrap { white-space: normal; }
+      header p { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-800 antialiased overflow-hidden flex flex-col h-screen">
+<body class="bg-white text-slate-800 antialiased overflow-hidden flex flex-col h-screen">
 
-  <!-- TOP EXECUTIVE BANNER -->
-  <header class="h-[72px] bg-slate-950 text-white flex items-center justify-between px-5 border-b border-slate-800 z-50 shrink-0">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-lg bg-sky-600 flex items-center justify-center font-extrabold text-white shadow-lg text-lg tracking-wider">NYC</div>
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-base font-bold tracking-tight text-white">NYC Urban Mobility Strategy - Interactive Citywide Atlas</h1>
-          <span class="text-[10px] uppercase font-bold tracking-wider bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">Verified Consulting Release</span>
-        </div>
-        <p class="text-xs text-slate-400">Congestion Pricing Modal Shift, Highway Speeds, Commuter Origins, and Outer-Borough Public Transport Priorities</p>
-      </div>
+  <header class="bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between gap-4 shrink-0 z-50">
+    <div class="min-w-0">
+      <h1 class="text-[17px] font-bold text-slate-900 leading-tight">NYC Mobility Atlas</h1>
+      <p class="text-[13px] text-slate-500 leading-snug truncate">Congestion pricing cut traffic. Where should transit money go next?</p>
     </div>
-
-    <!-- BOROUGH JUMP & LINKS -->
-    <div class="flex items-center space-x-3">
-      <!-- Search Input -->
-      <div class="relative w-44">
-        <input type="text" id="global-search" placeholder="Search GEOID / Route / Station..." 
-               class="w-full bg-slate-900 text-xs text-slate-200 placeholder-slate-500 rounded-md px-3 py-1.5 border border-slate-700 focus:outline-none focus:border-sky-500"
-               onkeyup="handleSearch(this.value)">
-      </div>
-
-      <!-- Quick Borough Zoom -->
-      <select id="borough-zoom-select" onchange="zoomToBorough(this.value)" 
-              class="bg-slate-900 text-xs font-medium text-slate-200 rounded-md px-2.5 py-1.5 border border-slate-700 focus:outline-none focus:border-sky-500">
-        <option value="NYC">Zoom: All NYC</option>
-        <option value="Manhattan">Manhattan / CRZ Core</option>
+    <div class="flex items-center gap-2 shrink-0">
+      <input type="search" id="global-search" placeholder="Find a station, tract or crossing" aria-label="Search the map"
+             class="hide-sm w-56 bg-white text-[13px] border border-slate-300 px-3 py-1.5 focus:outline-none focus:border-slate-900"
+             onkeydown="if (event.key === 'Enter') handleSearch(this.value)">
+      <select id="borough-zoom-select" onchange="zoomToBorough(this.value)" aria-label="Zoom to a borough"
+              class="hide-sm bg-white text-[13px] border border-slate-300 px-2 py-1.5 focus:outline-none focus:border-slate-900">
+        <option value="NYC">All of NYC</option>
+        <option value="Manhattan">Manhattan</option>
         <option value="Brooklyn">Brooklyn</option>
-        <option value="Queens">Queens (Eastern / SE)</option>
-        <option value="Bronx">Bronx (East Bronx)</option>
+        <option value="Queens">Queens</option>
+        <option value="Bronx">Bronx</option>
         <option value="Staten Island">Staten Island</option>
       </select>
-
-      <!-- Dedicated Pages Dropdown -->
-      <div class="relative group">
-        <button class="bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 px-3 py-1.5 rounded-md border border-slate-700 flex items-center gap-1.5">
-          <span>Analysis Pages (1-10)</span>
-          <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
-        </button>
-        <div class="absolute right-0 top-full mt-1 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl py-1 hidden group-hover:block z-50">
-          <a href="page_1_citywide_overview.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">1. Citywide Overview</a>
-          <a href="page_2_congestion_pricing.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">2. Congestion Pricing Toll Zone</a>
-          <a href="page_3_traffic_performance.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">3. Highway Traffic Speeds</a>
-          <a href="page_4_commuter_origins.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">4. Commuter Origins & Jobs</a>
-          <a href="page_5_car_dependence_opportunity.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">5. Car Dependence & Opportunity</a>
-          <a href="page_6_transit_network.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">6. Transit Network Coverage</a>
-          <a href="page_7_bus_operations.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">7. Bus Speeds & Reliability</a>
-          <a href="page_8_journey_analysis.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">8. Door-to-Door Multimodal Journeys</a>
-          <a href="page_9_intervention_scenarios.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">9. Union Tpke Scenario Simulation</a>
-          <a href="page_10_government_solutions.html" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">10. Location-Specific Solutions</a>
-          <div class="border-t border-slate-800 my-1"></div>
-          <a href="manifest.html" class="block px-3 py-1.5 text-xs text-emerald-400 font-medium hover:bg-emerald-600 hover:text-white">Spatial Data Manifest & Lineage</a>
+      <details class="menu relative">
+        <summary class="btn">Exhibits &#9662;</summary>
+        <div class="absolute right-0 top-full mt-1 w-64 bg-white border border-slate-200 shadow-lg py-1 z-[2000]">
+          <a href="exhibits/Exhibit_1_Congestion_Pricing.html">1. Traffic fell</a>
+          <a href="exhibits/Exhibit_2_Highway_Speeds.html">2. Highway speeds were mixed</a>
+          <a href="exhibits/Exhibit_3_Travel_Origins.html">3. Who travels, and from where</a>
+          <a href="exhibits/Exhibit_4_Transit_Journeys.html">4. Why transit is slow</a>
+          <a href="exhibits/Exhibit_5_Improvement_Scenarios.html">5. Model test: faster buses</a>
+          <a href="exhibits/Exhibit_6_Government_Decision.html">6. What to fund</a>
+          <div class="border-t border-slate-200 my-1"></div>
+          <a href="NYC_Mobility_Strategy.pdf">Briefing deck (PDF)</a>
         </div>
-      </div>
-
-      <!-- PPT Exhibits Menu -->
-      <div class="relative group">
-        <button class="bg-sky-950 hover:bg-sky-900 text-xs font-semibold text-sky-200 px-3 py-1.5 rounded-md border border-sky-800 flex items-center gap-1.5">
-          <span>PPT Exhibits (1-6)</span>
-          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-        </button>
-        <div class="absolute right-0 top-full mt-1 w-60 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl py-1 hidden group-hover:block z-50">
-          <a href="exhibits/EXHIBIT_1_CONGESTION_PRICING_RESULTS.html" target="_blank" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">Exhibit 1: Congestion Pricing</a>
-          <a href="exhibits/EXHIBIT_2_NYC_HIGHWAY_SPEEDS.html" target="_blank" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">Exhibit 2: Highway Speeds</a>
-          <a href="exhibits/EXHIBIT_3_TRAVEL_ORIGINS.html" target="_blank" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">Exhibit 3: Travel Origins</a>
-          <a href="exhibits/EXHIBIT_4_JOURNEY_COMPARISON.html" target="_blank" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">Exhibit 4: Journey Comparison</a>
-          <a href="exhibits/EXHIBIT_5_SCENARIO_SIMULATION.html" target="_blank" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">Exhibit 5: Scenario Simulation</a>
-          <a href="exhibits/EXHIBIT_6_GOVERNMENT_DECISION.html" target="_blank" class="block px-3 py-1.5 text-xs text-slate-300 hover:bg-sky-600 hover:text-white">Exhibit 6: Government Decision</a>
-        </div>
-      </div>
+      </details>
+      <a href="about.html" class="btn no-underline">How I did this</a>
     </div>
   </header>
 
-  <!-- NAVIGATION BAR (10 THEMATIC MODULES) -->
-  <nav class="bg-slate-900 border-b border-slate-800 px-4 py-1.5 flex items-center space-x-1 overflow-x-auto custom-scrollbar shrink-0 z-40 text-xs">
-    <button onclick="setModule('overview')" id="btn-overview" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5 active">
-      <i data-lucide="map" class="w-3.5 h-3.5"></i> 1. Citywide Overview
-    </button>
-    <button onclick="setModule('congestion')" id="btn-congestion" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5">
-      <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> 2. Congestion Pricing
-    </button>
-    <button onclick="setModule('traffic')" id="btn-traffic" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5">
-      <i data-lucide="gauge" class="w-3.5 h-3.5"></i> 3. Highway Speeds
-    </button>
-    <button onclick="setModule('origins')" id="btn-origins" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5">
-      <i data-lucide="users" class="w-3.5 h-3.5"></i> 4. Commuter Origins
-    </button>
-    <button onclick="setModule('opportunity')" id="btn-opportunity" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5">
-      <i data-lucide="car" class="w-3.5 h-3.5"></i> 5. Car Dependence & Gaps
-    </button>
-    <button onclick="setModule('transit')" id="btn-transit" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5">
-      <i data-lucide="train" class="w-3.5 h-3.5"></i> 6. Transit Network
-    </button>
-    <button onclick="setModule('buses')" id="btn-buses" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5">
-      <i data-lucide="bus" class="w-3.5 h-3.5"></i> 7. Bus Corridors (29 Routes)
-    </button>
-    <button onclick="setModule('journeys')" id="btn-journeys" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5">
-      <i data-lucide="navigation" class="w-3.5 h-3.5"></i> 8. Multimodal Journeys (M01-M10)
-    </button>
-    <button onclick="setModule('scenarios')" id="btn-scenarios" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5">
-      <i data-lucide="sliders" class="w-3.5 h-3.5"></i> 9. Simulation Matrix (72 Cells)
-    </button>
-    <button onclick="setModule('solutions')" id="btn-solutions" class="nav-tab px-3 py-1.5 rounded text-slate-300 hover:text-white hover:bg-slate-800 font-medium whitespace-nowrap flex items-center gap-1.5">
-      <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> 10. Targeted Solutions
-    </button>
+  <nav class="bg-white border-b border-slate-200 px-3 flex items-stretch overflow-x-auto thin-scroll shrink-0 z-40 text-[13px]" aria-label="Map views">
+    <button onclick="setModule('overview')" id="btn-overview" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap active"><span class="n">1</span>Overview</button>
+    <button onclick="setModule('congestion')" id="btn-congestion" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">2</span>Congestion pricing</button>
+    <button onclick="setModule('traffic')" id="btn-traffic" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">3</span>Highway speeds</button>
+    <button onclick="setModule('origins')" id="btn-origins" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">4</span>Who travels</button>
+    <button onclick="setModule('opportunity')" id="btn-opportunity" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">5</span>Car dependence</button>
+    <button onclick="setModule('transit')" id="btn-transit" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">6</span>Subway network</button>
+    <button onclick="setModule('buses')" id="btn-buses" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">7</span>Bus speeds</button>
+    <button onclick="setModule('journeys')" id="btn-journeys" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">8</span>Door-to-door trips</button>
+    <button onclick="setModule('scenarios')" id="btn-scenarios" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">9</span>Model test</button>
+    <button onclick="setModule('solutions')" id="btn-solutions" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">10</span>What to fund</button>
   </nav>
 
-  <!-- MAIN WORKSPACE: MAP & INTELLIGENCE DRAWER -->
   <main class="flex-1 flex overflow-hidden relative">
+    <div id="map-wrap" class="flex-1 relative h-full">
+      <div id="map" class="w-full h-full"></div>
+      <div id="map-loading"><span>Loading map data&hellip;</span></div>
 
-    <!-- MAP CONTAINER -->
-    <div class="flex-1 relative h-full">
-      <div id="map" class="w-full h-full bg-slate-100"></div>
+      <div id="map-toolbar" class="absolute top-3 left-14 z-[1000] bg-white/95 shadow-sm border border-slate-200 px-3 py-2 flex items-center gap-3 text-[13px] max-w-[calc(100%-200px)] overflow-x-auto thin-scroll"></div>
+      <div id="map-legend" class="absolute bottom-6 left-3 z-[1000] bg-white/95 shadow-sm border border-slate-200 p-3 text-[12px] max-w-[280px]"></div>
 
-      <!-- DYNAMIC CONTEXTUAL TOOLBAR (FLOATING AT TOP OF MAP) -->
-      <div id="map-toolbar" class="absolute top-3 left-12 z-[1000] bg-white/95 backdrop-blur shadow-md rounded-lg border border-slate-200 px-3 py-2 flex items-center gap-3 text-xs max-w-[85vw] overflow-x-auto">
-        <!-- Dynamically injected per module -->
-      </div>
-
-      <!-- DYNAMIC MAP LEGEND (BOTTOM-LEFT) -->
-      <div id="map-legend" class="absolute bottom-6 left-4 z-[1000] bg-white/95 backdrop-blur shadow-lg rounded-lg border border-slate-200 p-3 text-xs max-w-xs legend-box">
-        <!-- Dynamically injected per module -->
-      </div>
-
-      <!-- COLLAPSE DRAWER TOGGLE (TOP-RIGHT) -->
-      <button onclick="toggleDrawer()" id="drawer-toggle-btn" 
-              class="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur hover:bg-white text-slate-700 p-2 rounded-lg shadow-md border border-slate-200 flex items-center gap-1 text-xs font-semibold">
-        <i data-lucide="panel-right" class="w-4 h-4"></i>
-        <span id="drawer-toggle-text">Hide Panel</span>
+      <button onclick="toggleDrawer()" id="drawer-toggle-btn" class="absolute top-3 right-3 z-[1000] btn shadow-sm">
+        <span id="drawer-toggle-text">Hide panel</span>
       </button>
     </div>
 
-    <!-- RIGHT INTELLIGENCE DRAWER (COLLAPSIBLE, 430px) -->
-    <aside id="intel-drawer" class="w-[430px] bg-white border-l border-slate-200 flex flex-col h-full shadow-2xl z-30 transition-all duration-300 overflow-hidden shrink-0">
-      
-      <!-- Drawer Header -->
-      <div class="p-4 border-b border-slate-200 bg-slate-50 shrink-0">
-        <div class="flex items-center justify-between">
-          <span id="drawer-module-badge" class="text-[10px] font-bold uppercase tracking-wider bg-sky-100 text-sky-800 px-2 py-0.5 rounded border border-sky-200">Module Context</span>
-          <span class="text-[10px] text-slate-500 font-mono">LEHD LODES / ACS / CMS / ATMS / GTFS</span>
-        </div>
-        <h2 id="drawer-title" class="text-base font-bold text-slate-900 mt-1 leading-snug">Executive Diagnostic Overview</h2>
-        <p id="drawer-subtitle" class="text-xs text-slate-600 mt-0.5">Empirical evidence baseline across all 5 boroughs</p>
+    <aside id="intel-drawer" class="bg-white border-l border-slate-200 flex flex-col h-full z-30 overflow-hidden shrink-0">
+      <div class="px-5 pt-4 pb-3 border-b border-slate-200 shrink-0">
+        <span id="drawer-module-badge" class="text-[11px] font-bold uppercase tracking-wider text-[#c8532a]">Overview</span>
+        <h2 id="drawer-title" class="text-[18px] font-bold text-slate-900 mt-1 leading-snug">Loading&hellip;</h2>
+        <p id="drawer-subtitle" class="text-[13px] text-slate-500 mt-1 leading-snug"></p>
       </div>
 
-      <!-- Drawer Scrollable Content -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar text-xs">
-        
-        <!-- KPI Metrics Grid -->
-        <div id="drawer-kpis" class="grid grid-cols-2 gap-2">
-          <!-- Injected dynamically -->
-        </div>
+      <div id="drawer-body" class="flex-1 overflow-y-auto px-5 py-4 space-y-4 thin-scroll text-[13px]">
+        <div id="drawer-kpis" class="grid grid-cols-2 gap-2"></div>
 
-        <!-- Embedded Interactive Chart Container -->
-        <div class="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
-          <div class="flex items-center justify-between mb-2">
-            <h3 id="chart-title" class="font-bold text-slate-800 text-xs">Diagnostic Breakdown</h3>
-            <span id="chart-badge" class="text-[10px] text-slate-500 font-mono">Survey / Sensor</span>
+        <section class="border border-slate-200 p-3">
+          <div class="flex items-baseline justify-between gap-3 mb-2">
+            <h3 id="chart-title" class="font-bold text-slate-900 text-[13px]"></h3>
+            <span id="chart-badge" class="text-[11px] text-slate-400 text-right"></span>
           </div>
-          <div class="h-44 relative">
-            <canvas id="drawer-chart"></canvas>
-          </div>
-        </div>
+          <div class="h-44 relative"><canvas id="drawer-chart"></canvas></div>
+        </section>
 
-        <!-- Selected Feature Detail Inspector Card -->
-        <div id="inspector-card" class="border border-slate-200 rounded-lg p-3 bg-white shadow-sm space-y-2">
+        <section id="inspector-card" class="border border-slate-200 p-3 space-y-2">
           <div class="flex items-center justify-between border-b border-slate-100 pb-1.5">
-            <span class="font-bold text-slate-900 flex items-center gap-1.5">
-              <i data-lucide="info" class="w-3.5 h-3.5 text-sky-600"></i> Selected Element Inspector
-            </span>
-            <span id="inspect-type" class="text-[10px] font-mono text-slate-500 uppercase bg-slate-100 px-1.5 py-0.5 rounded">None</span>
+            <span class="font-bold text-slate-900">Details</span>
+            <span id="inspect-type" class="text-[11px] text-slate-500 uppercase tracking-wide"></span>
           </div>
-          <div id="inspect-content" class="text-slate-600 space-y-1">
-            <p class="italic text-slate-400">Click any census tract, highway link, gateway, station, or corridor on the map to inspect its exact empirical measurements.</p>
+          <div id="inspect-content" class="text-slate-700 space-y-1">
+            <p class="text-slate-500">Hover over the map to preview. Click a shape to show its numbers here.</p>
           </div>
-        </div>
+        </section>
 
-        <!-- Analytical & Policy Guidance Note -->
-        <div id="policy-note" class="border-l-4 border-amber-500 bg-amber-50/60 p-3 rounded-r text-slate-700 space-y-1">
-          <div class="font-bold text-amber-900 flex items-center gap-1.5">
-            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-600"></i> Methodological Boundary
-          </div>
-          <p id="policy-note-text" class="text-[11px] leading-relaxed text-amber-900/90">
-            LODES payroll jobs represent formal employer reporting, not commuter vehicle choices. CMS car trips represent all-Manhattan travel. Tolling impacts must be verified empirically before committing capital.
-          </p>
-        </div>
+        <section id="policy-note" class="border-l-[3px] border-[#c8532a] bg-[#faf6f3] px-3 py-2.5">
+          <div class="font-bold text-[#a8441f] text-[12px] uppercase tracking-wide">Read with care</div>
+          <p id="policy-note-text" class="text-[12.5px] leading-relaxed text-slate-700 mt-1"></p>
+        </section>
 
-        <!-- Statutory & Funding Compliance Note -->
-        <div class="border-t border-slate-200 pt-3 text-[11px] text-slate-500 space-y-1 font-mono">
-          <div class="font-bold text-slate-700 flex items-center gap-1">
-            <i data-lucide="landmark" class="w-3.5 h-3.5 text-slate-600"></i> PAL Section 553-j Statutory Dedication:
-          </div>
-          <p class="text-[10px] text-slate-600 leading-normal">
-            80% NYC Transit (subway/bus capital) - 10% LIRR - 10% Metro-North. Net toll revenues are strictly restricted to MTA Capital Program debt service. Operating subsidies are legally prohibited.
-          </p>
-        </div>
-
+        <p class="text-[12px] text-slate-500 leading-relaxed">Toll money can only pay for capital projects: 80% subway and bus, 10% LIRR, 10% Metro-North (NY Public Authorities Law &sect;553-j).</p>
       </div>
-    </aside>
 
+      <div id="step-nav" class="grid grid-cols-[1fr_auto_1fr] gap-2 px-5 py-3 border-t border-slate-200 shrink-0"></div>
+    </aside>
   </main>
 
-  <!-- DATA & APP LOGIC SCRIPT -->
   <script src="atlas_app.js"></script>
 </body>
 </html>
