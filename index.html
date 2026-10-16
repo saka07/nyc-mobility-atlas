@@ -44,6 +44,7 @@
     .leaflet-interactive { cursor: pointer; }
     .leaflet-control-layers { border-radius: 0 !important; border: 1px solid #d0d0d0 !important; box-shadow: none !important; font-size: 12px; padding: 4px 8px !important; }
     .leaflet-control-layers-base label { display: inline-block; margin-right: 8px; cursor: pointer; }
+    .bus-label.bus-left { background: none !important; border: 0 !important; padding: 0 !important; overflow: visible; }
     .bus-label { background: rgba(255,255,255,.92); border: 1px solid #d0d0d0; padding: 1px 5px; font-size: 11.5px; font-weight: 700; color: #1a1a1a; white-space: nowrap; width: auto !important; height: auto !important; }
     #map-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1200; background: rgba(238,240,241,.85); font-size: 14px; color: #5c5c5c; }
     #map-loading span { padding: 10px 16px; background: #fff; border: 1px solid #e2e2e2; }
@@ -59,6 +60,7 @@
       #map-toolbar { left: 52px !important; right: 8px; max-width: none !important; flex-wrap: wrap; gap: 6px 10px; padding: 6px 8px; font-size: 12px; }
       #map-toolbar .whitespace-nowrap { white-space: normal; }
       header p { display: none; }
+      .bus-label { display: none; }
     }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   </style>
@@ -86,11 +88,12 @@
       <details class="menu relative">
         <summary class="btn">Exhibits &#9662;</summary>
         <div class="absolute right-0 top-full mt-1 w-64 bg-white border border-slate-200 shadow-lg py-1 z-[2000]">
-          <a href="Exhibit_1_Congestion_Pricing.html">1. Traffic fell</a>
-          <a href="Exhibit_2_Highway_Speeds.html">2. Highway speeds were mixed</a>
+          <a href="Exhibit_1_Congestion_Pricing.html">1. Traffic into the zone fell</a>
+          <a href="Exhibit_2_Highway_Speeds.html">2. Highway speeds barely changed</a>
           <a href="Exhibit_3_Travel_Origins.html">3. Who travels, and from where</a>
-          <a href="Exhibit_4_Transit_Journeys.html">4. Why transit is slow</a>
-          <a href="Exhibit_5_Improvement_Scenarios.html">5. Model test: faster buses</a>
+          <a href="Exhibit_4_Transit_Journeys.html">4. Where trip time goes</a>
+          <a href="Exhibit_5_Improvement_Scenarios.html">5. What-if test: a faster bus</a>
+          <a href="Exhibit_6_Government_Decision.html">6. What to do</a>
           <div class="border-t border-slate-200 my-1"></div>
           <a href="NYC_Mobility_Strategy.pdf">Briefing deck (PDF)</a>
         </div>
@@ -100,13 +103,13 @@
 
   <nav class="bg-white border-b border-slate-200 px-3 flex items-stretch overflow-x-auto thin-scroll shrink-0 z-40 text-[13px]" aria-label="Map views">
     <button onclick="setModule('overview')" id="btn-overview" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap active"><span class="n">1</span>Overview</button>
-    <button onclick="setModule('congestion')" id="btn-congestion" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">2</span>Congestion pricing</button>
+    <button onclick="setModule('congestion')" id="btn-congestion" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">2</span>Traffic fell</button>
     <button onclick="setModule('traffic')" id="btn-traffic" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">3</span>Highway speeds</button>
     <button onclick="setModule('origins')" id="btn-origins" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">4</span>Who travels</button>
-    <button onclick="setModule('buses')" id="btn-buses" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">5</span>Bus speeds</button>
-    <button onclick="setModule('journeys')" id="btn-journeys" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">6</span>Door-to-door trips</button>
-    <button onclick="setModule('scenarios')" id="btn-scenarios" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">7</span>Model test</button>
-    <button onclick="setModule('solutions')" id="btn-solutions" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">8</span>What to do first</button>
+    <button onclick="setModule('journeys')" id="btn-journeys" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">5</span>Trip times</button>
+    <button onclick="setModule('buses')" id="btn-buses" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">6</span>Local buses</button>
+    <button onclick="setModule('scenarios')" id="btn-scenarios" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">7</span>What-if test</button>
+    <button onclick="setModule('solutions')" id="btn-solutions" class="nav-tab px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="n">8</span>What to do</button>
   </nav>
 
   <main class="flex-1 flex overflow-hidden relative">
@@ -132,8 +135,8 @@
       <div id="drawer-body" class="flex-1 overflow-y-auto px-5 py-4 space-y-4 thin-scroll text-[13px]">
         <section id="reco" class="bg-[#1a1a1a] text-white px-4 py-3">
           <div class="text-[11px] font-bold uppercase tracking-wider text-[#e1977a]">What we recommend</div>
-          <p class="text-[13.5px] leading-snug mt-1">Start on Union Turnpike in Eastern Queens: faster buses and an easier transfer at Kew Gardens. In a model test, trips from six Union Turnpike origins to Midtown East at 8 a.m. are 6.2&ndash;12.5 minutes shorter. Measure the Q30 and Bx8 buses before doing more.</p>
-          <button onclick="setModule('solutions')" class="mt-2 text-[12.5px] font-bold text-[#e1977a] hover:text-white">See what to do first &rarr;</button>
+          <p class="text-[13.5px] leading-snug mt-1">Test better transit first in Eastern Queens. A faster Union Turnpike bus and an easier change to the subway at Kew Gardens cut trips to Midtown East by 6.2 to 12.5 minutes in a what-if test. Safer walks to the bus help Fresh Meadows. No data can yet show how many drivers would switch, so the test should measure it.</p>
+          <button onclick="setModule('solutions')" class="mt-2 text-[12.5px] font-bold text-[#e1977a] hover:text-white">See what to do &rarr;</button>
         </section>
         <div id="drawer-kpis" class="grid grid-cols-2 gap-2"></div>
 
@@ -151,7 +154,7 @@
             <span id="inspect-type" class="text-[11px] text-slate-500 uppercase tracking-wide"></span>
           </div>
           <div id="inspect-content" class="text-slate-700 space-y-1">
-            <p class="text-slate-500">Hover over the map to preview. Click a shape to show its numbers here.</p>
+            <p class="text-slate-500">Hover over the map to preview a place. Click it to see its numbers here. Click it again, or click empty map, to clear.</p>
           </div>
         </section>
       </div>

@@ -154,27 +154,54 @@ async function loadAtlasData() {
   }
 }
 
-// Hover: outline the shape under the mouse and keep the tooltip style consistent
+// Hover and click: hover previews a shape; click selects it and shows its numbers.
+// Clicking the same shape again, or clicking empty map, clears the selection.
+const HINT = '<p class="text-slate-500">Hover over the map to preview a place. Click it to see its numbers here. Click it again, or click empty map, to clear.</p>';
+function clearSelection() {
+  const s = state.sel;
+  state.sel = null;
+  if (s && s._orig) s.setStyle(s._orig);
+  const ic = document.getElementById('inspect-content');
+  if (ic) ic.innerHTML = HINT;
+  const it = document.getElementById('inspect-type');
+  if (it) it.innerText = '';
+}
+function selectedStyle(l) {
+  const poly = l instanceof L.Polygon;
+  if (poly) return { weight: 3, color: C.ink, opacity: 1 };
+  if (l instanceof L.CircleMarker) return { weight: 3.5, color: C.ink, opacity: 1 };
+  return { weight: (l._orig.weight || 3) + 4, opacity: 1 };
+}
 function enableHover() {
   function enhance(l) {
     if (!(l instanceof L.Path) || l._hov || l.options.interactive === false) return;
     l._hov = true;
+    l._orig = { weight: l.options.weight, color: l.options.color, opacity: l.options.opacity, fillOpacity: l.options.fillOpacity };
     const t = l.getTooltip && l.getTooltip();
     if (t) { t.options.className = 'atlas-tip'; t.options.direction = 'auto'; t.options.offset = [12, 0]; t.options.opacity = 1; }
-    let base = null;
     l.on('mouseover', () => {
-      base = { weight: l.options.weight, color: l.options.color, opacity: l.options.opacity, fillOpacity: l.options.fillOpacity };
+      if (state.sel === l) return;
       const poly = l instanceof L.Polygon;
-      const isZone = poly && l.feature && !l.feature.properties.GEOID;
-      if (isZone) return;
-      l.setStyle(poly ? { weight: 2.5, color: C.ink, opacity: 1 } : { weight: (base.weight || 3) + 3, opacity: 1 });
-      if (!poly) l.bringToFront();
+      if (poly && l.feature && !l.feature.properties.GEOID) return;
+      l.setStyle(poly ? { weight: 2.5, color: C.ink, opacity: 1 } : { weight: (l._orig.weight || 3) + 3, opacity: 1 });
+      if (!poly && l.bringToFront) l.bringToFront();
     });
-    l.on('mouseout', () => { if (base) l.setStyle(base); });
+    l.on('mouseout', () => { if (state.sel !== l) l.setStyle(l._orig); });
+    l.on('click', e => {
+      L.DomEvent.stopPropagation(e);
+      if (state.sel === l) { clearSelection(); return; }
+      const prev = state.sel;
+      if (prev && prev._orig) prev.setStyle(prev._orig);
+      state.sel = l;
+      l.setStyle(selectedStyle(l));
+      if (l.bringToFront) l.bringToFront();
+    });
   }
   function walk(l) { if (l.eachLayer) l.eachLayer(walk); enhance(l); }
   [lgBoroughs, lgCRZ, lgGateways, lgTraffic, lgOrigins, lgOpportunity, lgTransit, lgBuses, lgJourneys, lgScenarios, lgSolutions].forEach(walk);
   map.on('layeradd', e => walk(e.layer));
+  map.on('click', clearSelection);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') clearSelection(); });
 }
 
 // Layer Initializers
@@ -277,7 +304,7 @@ function initMapLayers() {
     }),
     onEachFeature: (feature, layer) => {
       const p = feature.properties;
-      layer.bindTooltip(`<strong>${p.market_name}</strong><br>${p.total_min} min door to door<br>Walking ${p.walk_min} min &middot; waiting ${p.wait_min} min<br><em>Schematic line, not the actual route</em>`, { sticky: true });
+      layer.bindTooltip(`<strong>${p.market_name}</strong><br>${p.total_min} min door to door<br>Walking ${p.walk_min} min &middot; waiting ${p.wait_min} min<br><em>Straight line, not the real route</em>`, { sticky: true });
       layer.on('click', () => inspectJourney(p));
     }
   }).addTo(lgJourneys);
@@ -293,7 +320,7 @@ function initMapLayers() {
     }),
     onEachFeature: (feature, layer) => {
       const p = feature.properties;
-      layer.bindTooltip(`<strong>${p.corridor_id}: ${p.name}</strong><br>${p.origin}<br><em>Schematic line. Click for details</em>`, { sticky: true });
+      layer.bindTooltip(`<strong>${(FIXES[p.corridor_id] || {}).name || p.name}</strong><br>${(FIXES[p.corridor_id] || {}).phase || ''}<br><em>Straight line, not the real route. Click for details.</em>`, { sticky: true });
       layer.on('click', () => inspectSolution(p));
     }
   }).addTo(lgSolutions);
@@ -405,36 +432,36 @@ function buildOpportunityLayer() {
 
 function buildBusCorridorLayer() {
   lgBuses.clearLayers();
-
-  // Route lines are approximate (drawn for location only). Speeds and on-time figures come from the MTA file.
-  const real = {};
-  (state.data.busRoutes || []).forEach(r => { real[r.route_id.toUpperCase()] = r; });
-  const pick = (id) => real[id.toUpperCase()] || {};
-  const busNodes = [
-    { id: 'B46', key: 'B46', name: 'B46 (Utica Ave)', borough: 'Brooklyn', coords: [[40.612, -73.931], [40.670, -73.932], [40.697, -73.987]] },
-    { id: 'B41', key: 'B41', name: 'B41 (Flatbush Ave)', borough: 'Brooklyn', coords: [[40.615, -73.928], [40.655, -73.959], [40.694, -73.989]] },
-    { id: 'Bx12', key: 'BX12', name: 'Bx12 (Fordham Rd / Pelham Pkwy)', borough: 'Bronx', coords: [[40.865, -73.921], [40.858, -73.890], [40.853, -73.828]] },
-    { id: 'Q44', key: 'Q44+', name: 'Q44 Select Bus (Main St)', borough: 'Queens', coords: [[40.702, -73.801], [40.760, -73.830], [40.842, -73.878]] },
-    { id: 'M15', key: 'M15', name: 'M15 (First / Second Aves)', borough: 'Manhattan', coords: [[40.702, -74.013], [40.758, -73.965], [40.803, -73.935]] },
-    { id: 'Q30', key: 'Q30', name: 'Q30 (Utopia Pkwy, Fresh Meadows)', borough: 'Queens', coords: [[40.708, -73.799], [40.725, -73.793], [40.755, -73.778]], isGap: true },
-    { id: 'Bx8', key: 'BX8', name: 'Bx8 (Throggs Neck)', borough: 'Bronx', coords: [[40.825, -73.815], [40.840, -73.832], [40.880, -73.855]], isGap: true }
-  ].map(b => Object.assign(b, b.isGap ? { speed: null, wait: null } : { speed: pick(b.key).speed_mph, wait: pick(b.key).wait_assessment_peak_pct }));
-
-  busNodes.forEach(b => {
-    const mid = b.coords[1];
-    const mk = L.circleMarker(mid, {
-      radius: 8, fillColor: b.isGap ? '#ffffff' : (b.speed < 7.0 ? C.orange : C.dark),
-      color: b.isGap ? C.steel : '#ffffff', weight: b.isGap ? 2.5 : 2, dashArray: b.isGap ? '3, 3' : null, fillOpacity: 1
+  // Dots mark one point on each route, for location only. Figures: MTA bus data (see BUS below).
+  BUS.forEach(b => {
+    const slow = b.wait != null && b.wait < 70;
+    const mk = L.circleMarker(b.at, {
+      radius: b.focus ? 9 : 7, fillColor: b.speed == null ? '#ffffff' : (slow ? C.orange : C.dark),
+      color: b.speed == null ? C.orange : '#ffffff', weight: b.speed == null ? 3 : 2, fillOpacity: 1
     });
-    mk.bindTooltip(`
-      <strong>${b.name}</strong><br>${b.borough}<br>
-      ${b.isGap ? 'Not in the MTA speed data: speed and reliability unknown' :
-        `Morning speed: <strong>${b.speed.toFixed(1)} mph</strong><br>Buses evenly spaced: ${b.wait.toFixed(1)}% of the time`}`, { sticky: true });
+    mk.bindTooltip(`<strong>${b.name}</strong><br>${b.area}<br>
+      Average morning speed: <strong>${b.speed == null ? 'not in the data' : b.speed.toFixed(1) + ' mph'}</strong>${b.speedNote ? ' (' + b.speedNote + ')' : ''}<br>
+      On time at peak: <strong>${b.wait.toFixed(0)}%</strong> (MTA target 70%)`, { sticky: true });
     mk.on('click', () => inspectBusRoute(b));
     mk.addTo(lgBuses);
-    L.marker(mid, { interactive: false, icon: L.divIcon({ className: 'bus-label', html: `${b.id}${b.isGap ? ' · not measured' : ' · ' + b.speed.toFixed(1) + ' mph'}`, iconSize: null, iconAnchor: [-12, 8] }) }).addTo(lgBuses);
+    L.marker(b.at, { interactive: false, icon: L.divIcon({ className: b.left ? 'bus-label bus-left' : 'bus-label', html: `<span${b.left ? ' style="position:absolute;right:24px;top:0;background:rgba(255,255,255,.92);border:1px solid #d0d0d0;padding:1px 5px"' : ''}>${b.short.replace(' bus', '')}: ${b.speed == null ? 'no speed data' : b.speed.toFixed(1) + ' mph'}, ${b.wait.toFixed(0)}% on time</span>`, iconSize: null, iconAnchor: b.left ? [0, 8] : [-12, 8] }) }).addTo(lgBuses);
   });
 }
+
+// The local buses discussed in the briefing. Speeds: MTA, weekday mornings, August 2026
+// (Throggs Neck: March to June 2025). On time: MTA wait assessment, peak, August 2026.
+const BUS = [
+  { short: 'Union Turnpike bus', name: 'Union Turnpike bus', area: 'Eastern Queens, to the E and F trains at Kew Gardens', at: [40.7315, -73.7700], speed: 11.43, wait: 79.9, focus: true,
+    meaning: 'The bus used in the what-if test. It is the fastest and most reliable of the buses shown, but the ride is still 14 to 41 minutes long.' },
+  { short: 'Fresh Meadows bus', name: 'Fresh Meadows bus', area: 'Eastern Queens, to the F train at 169th Street', at: [40.7105, -73.7935], speed: null, wait: 70.1, focus: true,
+    meaning: 'On time at peak and the ride is only 6.9 minutes. The problem is the walk to the bus, so safer, shorter walks come first. Its speed is not tracked yet.' },
+  { short: 'Throggs Neck bus', name: 'Throggs Neck bus', area: 'East Bronx, to the 6 train at Buhre Avenue', at: [40.8300, -73.8250], speed: 7.92, speedNote: 'spring 2025', wait: 67.1, focus: true,
+    meaning: 'Slow and below the on-time target. A bus lane on Crosby Avenue is the fix, once 2026 speed data confirm the delay.' },
+  { short: 'Corona bus', name: 'Corona bus', area: 'Queens, Flushing to Ridgewood', at: [40.7440, -73.8640], speed: 7.84, wait: 66.3, left: true,
+    meaning: 'A nearby Queens route for comparison. Slow and below the on-time target.' },
+  { short: 'Metropolitan Avenue bus', name: 'Metropolitan Avenue bus', area: 'Queens, Jamaica to Williamsburg', at: [40.7120, -73.9050], speed: 7.59, wait: 68.5,
+    meaning: 'A nearby Queens route for comparison. Slow and just below the on-time target.' }
+];
 
 // Module Switcher Logic
 function setModule(modId) {
@@ -457,7 +484,8 @@ function setModule(modId) {
   // Frame each view on what it shows
   const NYC = [[40.49, -74.27], [40.92, -73.69]];
   const frames = {
-    overview: NYC, traffic: NYC, origins: NYC, opportunity: NYC, transit: NYC, buses: NYC, journeys: NYC,
+    overview: NYC, traffic: NYC, origins: NYC, opportunity: NYC, transit: NYC, journeys: NYC,
+    buses: [[40.68, -73.99], [40.86, -73.70]],
     congestion: [[40.695, -74.03], [40.775, -73.94]],
     solutions: [[40.60, -74.05], [40.86, -73.70]]
   };
@@ -535,49 +563,51 @@ const ZONE_JOBS = { Manhattan: 401034, Brooklyn: 389274, Queens: 264568, Bronx: 
 const ALL_MN_JOBS = { Manhattan: 532110, Brooklyn: 475957, Queens: 343646, Bronx: 206562, 'Staten Island': 59459 };
 const CAR_TRIPS = { Bronx: 102489, Brooklyn: 42408, Queens: 36439, 'Staten Island': 8901 };
 
-// MODULE 1: Citywide Overview
+// MODULE 1: Overview
 function renderOverviewModule() {
-  updateToolbar(toolbarTitle('Citywide overview', 'Five boroughs, the congestion pricing zone and 496 subway stations (lines not drawn)'));
+  updateToolbar(toolbarTitle('Overview', 'The congestion pricing zone and 496 subway stations'));
   updateLegend(legendBox('On the map', [
-    legendRow(box('transparent', `border:2.5px solid ${C.orange};background:rgba(200,83,42,.08)`), 'Congestion pricing zone (south of 60th St)'),
-    legendRow(dot(C.mid), 'Subway station (496); subway lines not drawn'),
+    legendRow(box('transparent', `border:2.5px solid ${C.orange};background:rgba(200,83,42,.08)`), 'Congestion pricing zone: Manhattan south of 60th Street'),
+    legendRow(dot(C.mid), 'Subway station (lines are not drawn)'),
     legendRow(line(C.mid), 'Borough boundary')
   ]));
-  updateDrawerHeader('Fix the trip to the train, starting in Eastern Queens', 'Congestion pricing cut traffic. On outer-borough transit trips, walking and waiting add about 13–22 minutes; faster feeder buses and easier transfers can shorten them.', 'Overview');
+  updateDrawerHeader('Better transit could move more people out of cars; we recommend testing it first in Eastern Queens',
+    'Congestion pricing has cut traffic. But from the outer boroughs, a transit trip to Manhattan still takes about an hour. These eight steps show the evidence.', 'Overview');
   updateKPIs([
-    { label: 'Fewer vehicles a day', val: '67,000', sub: 'entering the zone (−11%)' },
-    { label: 'Zone workers from Brooklyn + Queens', val: '52.8%', sub: '653,842 of 1.24 million' },
-    { label: 'Walking and waiting', val: '13–22 min', sub: 'of a typical outer-borough trip' },
-    { label: 'Saved in the model test', val: '6.2–12.5 min', sub: '6 Union Tpke origins → Midtown East, 8 a.m.' }
+    { label: 'Fewer vehicles a day', val: '67,000', sub: 'entering the zone (11% fewer)' },
+    { label: 'Zone workers from Brooklyn and Queens', val: '53%', sub: '653,842 of 1,239,262' },
+    { label: 'Walking and waiting', val: '13–22 min', sub: 'of each one-hour transit trip' },
+    { label: 'Saved on Union Turnpike', val: '6.2–12.5 min', sub: 'a trip, in a what-if test' }
   ]);
   renderChart('bar', {
     labels: Object.keys(ZONE_JOBS),
     datasets: [{ label: 'Residents working in the zone', data: Object.values(ZONE_JOBS),
       backgroundColor: Object.keys(ZONE_JOBS).map(b => (b === 'Brooklyn' || b === 'Queens') ? C.orange : C.grey) }]
-  }, 'Where people who work in the zone live', 'US Census, 2023');
-  setPolicyNote('Jobs show where workers live, not whether they drive. Car trips are counted to all of Manhattan, not only the tolled zone.');
+  }, 'Where people who work in the zone live', 'U.S. Census, 2023');
+  setPolicyNote('');
 }
 
 // MODULE 2: Congestion Pricing
 function renderCongestionModule() {
-  updateToolbar(toolbarTitle('Congestion pricing', 'About 67,000 fewer vehicles a day (−11%) in the first six months'));
+  updateToolbar(toolbarTitle('Congestion pricing', 'About 67,000 fewer vehicles a day in the first six months'));
   updateLegend(legendBox('On the map', [
     legendRow(box('transparent', `border:2.5px solid ${C.orange};background:rgba(200,83,42,.08)`), 'Congestion pricing zone'),
-    legendRow(dot(C.dark), 'Entry crossing (size = vehicles a weekday)')
-  ], 'The 12 crossings add up to 511,829 a weekday. They use a different method from the official totals.'));
-  updateDrawerHeader('Traffic into the zone fell', 'MTA six-month results, 5 Jan – 30 Jun 2025', 'Congestion pricing');
+    legendRow(dot(C.dark), 'Crossing into the zone (bigger dot = more vehicles)')
+  ], 'The 12 crossings add up to 511,829 vehicles a weekday. They are counted a different way from the official totals, so the two do not match.'));
+  updateDrawerHeader('Congestion pricing cut the number of vehicles entering the zone by about 11% in six months',
+    'Official MTA estimate for January to June 2025, and 2025 weekday counts at each crossing.', 'Congestion pricing');
   updateKPIs([
-    { label: 'Before tolling', val: '~600,000', sub: 'vehicles a day (official estimate)' },
-    { label: 'After tolling', val: '~533,000', sub: 'vehicles a day' },
-    { label: 'Busiest crossing', val: 'East 60th St', sub: '79,465 a weekday (15.5%)' },
-    { label: 'Top two crossings', val: '26%', sub: 'East 60th St and FDR Drive' }
+    { label: 'Before tolling', val: 'about 600,000', sub: 'vehicles a day' },
+    { label: 'After tolling', val: 'about 533,000', sub: 'vehicles a day' },
+    { label: 'Busiest crossing', val: 'East 60th Street', sub: '79,465 vehicles a weekday' },
+    { label: 'Two busiest crossings', val: '26%', sub: 'of all entries' }
   ]);
   const gw = state.data.gateways.features.map(f => f.properties).sort((a, b) => b.weekday_entries - a.weekday_entries);
   renderChart('bar', {
     labels: gw.map(g => g.name),
     datasets: [{ label: 'Vehicles a weekday', data: gw.map(g => g.weekday_entries), backgroundColor: gw.map((g, i) => i < 2 ? C.orange : C.grey) }]
-  }, 'Vehicles a weekday at each crossing (2025)', 'MTA / NY Open Data', { indexAxis: 'y' });
-  setPolicyNote('This shows what changed, not why every change happened. Crossing counts and official totals use different methods, so they do not add up.');
+  }, 'Vehicles a weekday at each crossing, 2025', 'MTA, New York State open data', { indexAxis: 'y' });
+  setPolicyNote('');
 }
 
 // MODULE 3: Highway Speeds
@@ -596,26 +626,26 @@ function renderTrafficModule() {
     </label>
     <label class="flex items-center gap-1.5 text-slate-700 cursor-pointer whitespace-nowrap">
       <input type="checkbox" id="robust-toggle" ${state.robustOnlyTraffic ? 'checked' : ''} onchange="toggleRobustTraffic(this.checked)" class="accent-[#c8532a]">
-      <span>Only roads with good data (80 of 122)</span>
+      <span>Only stretches with good data (80 of 122)</span>
     </label>
   `);
   updateLegend(legendBox('Speed change, 2024 to 2025', [
     legendRow(line(C.dark), 'Faster by more than 2 mph'),
     legendRow(line(C.grey), 'Little change (within 2 mph)'),
     legendRow(line(C.orange), 'Slower by more than 2 mph'),
-    legendRow(line(C.brown, true), 'BQE link (deck repairs under way in 2025)')
-  ], 'Counts in the panel are for the morning peak. The data shows changes, not their causes.'));
-  updateDrawerHeader('Highway speeds barely changed overall', 'Same months (March–June) in 2024 and 2025, NYC DOT sensors', 'Highway speeds');
+    legendRow(line(C.brown, true), 'Brooklyn-Queens Expressway stretch (deck repairs in 2025)')
+  ], 'Counts in the panel are for the morning peak. The data shows what changed, not why.'));
+  updateDrawerHeader('Highway speeds across the city barely changed', 'Weekday speeds on 80 highway stretches with good data, March to June 2024 compared with 2025 (NYC DOT). The median change was 0.37 mph slower.', 'Highway speeds');
   updateKPIs([
-    { label: 'Roads with good data', val: '80', sub: 'of 122 monitored links' },
+    { label: 'Highway stretches with good data', val: '80', sub: 'of 122 monitored' },
     { label: 'Faster', val: '13', sub: 'by more than 2 mph' },
     { label: 'Little change', val: '45', sub: 'within 2 mph' },
     { label: 'Slower', val: '22', sub: 'by more than 2 mph' }
   ]);
   renderChart('bar', {
     labels: ['Faster', 'Little change', 'Slower'],
-    datasets: [{ label: 'Roads (morning peak)', data: [13, 45, 22], backgroundColor: [C.dark, C.grey, C.orange] }]
-  }, 'Morning-peak roads by speed change', 'NYC DOT');
+    datasets: [{ label: 'Highway stretches', data: [13, 45, 22], backgroundColor: [C.dark, C.grey, C.orange] }]
+  }, 'Highway stretches by speed change, morning peak', 'NYC DOT');
   setPolicyNote('');
 }
 
@@ -642,22 +672,23 @@ function renderOriginsModule() {
       </select>
     </label>
   `);
-  const ramp = [['#5f2713', 'More than 2,000'], ['#8f3a1b', '1,201 – 2,000'], ['#c8532a', '601 – 1,200'], ['#df8a66', '251 – 600'], ['#efbfa8', '101 – 250'], ['#f8e6dc', '1 – 100']];
-  updateLegend(legendBox('Workers per census tract', ramp.map(r => legendRow(box(r[0]), r[1])).concat([
+  const ramp = [['#5f2713', 'More than 2,000'], ['#8f3a1b', '1,201 to 2,000'], ['#c8532a', '601 to 1,200'], ['#df8a66', '251 to 600'], ['#efbfa8', '101 to 250'], ['#f8e6dc', '1 to 100']];
+  updateLegend(legendBox('Workers living in each neighbourhood (census tract)', ramp.map(r => legendRow(box(r[0]), r[1])).concat([
     legendRow(box('transparent', `border:2.5px solid ${C.orange}`), 'Congestion pricing zone')])));
-  updateDrawerHeader('Brooklyn and Queens supply most zone workers', 'Where people who work in the zone live (US Census, 2023)', 'Who travels');
+  updateDrawerHeader('Most zone workers come from Brooklyn and Queens, but the Bronx sends the most cars into Manhattan',
+    'The map shows where people who work in the zone live (U.S. Census, 2023). The chart shows car-driver trips into Manhattan each day (NYC DOT survey, 2024).', 'Who travels');
   updateKPIs([
-    { label: 'Zone jobs held by New Yorkers', val: '1,239,262', sub: 'south of 60th St' },
-    { label: 'Brooklyn + Queens', val: '52.8%', sub: '653,842 jobs' },
-    { label: 'Queens residents', val: fmt(ZONE_JOBS.Queens), sub: fmt(ALL_MN_JOBS.Queens) + ' anywhere in Manhattan' },
-    { label: 'Bronx residents', val: fmt(ZONE_JOBS.Bronx), sub: fmt(ALL_MN_JOBS.Bronx) + ' anywhere in Manhattan' }
+    { label: 'Zone jobs held by New Yorkers', val: '1,239,262', sub: 'in Manhattan south of 60th Street' },
+    { label: 'Brooklyn and Queens', val: '53%', sub: '653,842 of those jobs' },
+    { label: 'Bronx car trips into Manhattan', val: '102,489', sub: 'a day, 2.8 times as many as Queens' },
+    { label: 'Queens car trips into Manhattan', val: '36,439', sub: 'a day' }
   ]);
   renderChart('bar', {
     labels: Object.keys(CAR_TRIPS),
     datasets: [{ label: 'Car-driver trips a day', data: Object.values(CAR_TRIPS),
       backgroundColor: Object.keys(CAR_TRIPS).map(b => b === 'Bronx' ? C.orange : C.grey) }]
-  }, 'Car-driver trips into all of Manhattan a day', 'NYC DOT survey, 2024');
-  setPolicyNote('Jobs show where workers live, not how they travel. Car trips cover all of Manhattan, not only the tolled zone, so the two cannot be combined into "drivers into the zone".');
+  }, 'Car-driver trips into Manhattan each day', 'NYC DOT survey, 2024');
+  setPolicyNote('');
 }
 
 function setOriginMetric(metric) {
@@ -721,60 +752,56 @@ function renderTransitModule() {
   setPolicyNote('Where the subway is far away, people rely on feeder buses or drive. That is why the feeder buses matter.');
 }
 
-// MODULE 7: Bus Operations
+// MODULE 6: Local buses
 function renderBusesModule() {
-  const routes = (state.data.busRoutes || []).filter(r => r.speed_mph);
-  const avg = routes.reduce((a, r) => a + r.speed_mph, 0) / routes.length;
-  const slowest = routes.slice().sort((a, b) => a.speed_mph - b.speed_mph);
-  updateToolbar(toolbarTitle('Bus speeds', `7 example routes shown as dots; all ${routes.length} measured routes are in the chart`));
+  updateToolbar(toolbarTitle('Local buses', 'Five buses from the briefing; each dot marks one point on the route'));
   updateLegend(legendBox('On the map', [
-    legendRow(dot(C.dark), 'Measured, 7 mph or faster'),
-    legendRow(dot(C.orange), 'Measured, slower than 7 mph'),
-    legendRow(box('#fff', `border:2px dashed ${C.steel};border-radius:50%`), 'Not measured: Q30 and Bx8')
-  ], 'Each dot marks one point on a route, not the full route line.'));
-  updateDrawerHeader('The feeder buses that matter most are not measured', 'MTA bus speeds and wait assessment, weekday mornings', 'Bus speeds');
+    legendRow(dot(C.dark), 'On time at least 70% of the time at peak (MTA target)'),
+    legendRow(dot(C.orange), 'Below the 70% target'),
+    legendRow(box('#fff', `border:3px solid ${C.orange};border-radius:50%`), 'Speed not tracked')
+  ], 'On time means the gap between buses is no more than 3 minutes longer than scheduled.'));
+  updateDrawerHeader('The local buses differ: the Throggs Neck bus is slow and often late, while the Fresh Meadows bus is on time',
+    'MTA bus data for weekday mornings. Speeds are from August 2026, except Throggs Neck (March to June 2025).', 'Local buses');
   updateKPIs([
-    { label: 'Routes measured', val: String(routes.length), sub: 'in the MTA speed data' },
-    { label: 'Average speed', val: avg.toFixed(1) + ' mph', sub: 'across measured routes' },
-    { label: 'Slowest route', val: slowest[0].speed_mph.toFixed(1) + ' mph', sub: slowest[0].route_id + ' (' + slowest[0].borough + ')' },
-    { label: 'Q30 and Bx8', val: 'Not measured', sub: 'speed and reliability unknown' }
+    { label: 'Union Turnpike bus', val: '11.4 mph', sub: '80% on time; the bus in the what-if test' },
+    { label: 'Fresh Meadows bus', val: '70% on time', sub: 'speed not tracked; ride only 6.9 minutes' },
+    { label: 'Throggs Neck bus', val: '7.9 mph', sub: '67% on time, below the 70% target' },
+    { label: 'MTA on-time target', val: '70%', sub: 'at peak' }
   ]);
-  const ten = slowest.slice(0, 10);
   renderChart('bar', {
-    labels: ten.map(r => r.route_id),
-    datasets: [{ label: 'Morning speed (mph)', data: ten.map(r => r.speed_mph), backgroundColor: ten.map(r => r.speed_mph < 7 ? C.orange : C.grey) }]
-  }, 'The 10 slowest measured routes (mph)', 'MTA, Aug 2026', { indexAxis: 'y' });
-  setPolicyNote('The Q30 and Bx8 are not in the MTA data. Other routes\' numbers cannot stand in for them, so measure them first.');
+    labels: BUS.map(b => b.short.replace(' bus', '')),
+    datasets: [{ label: 'On time at peak (%)', data: BUS.map(b => b.wait), backgroundColor: BUS.map(b => b.wait < 70 ? C.orange : C.dark) }]
+  }, 'Buses on time at peak (%)', 'MTA, August 2026', { indexAxis: 'y' });
+  setPolicyNote('');
 }
 
-// MODULE 8: Journeys
+// MODULE 5: Journeys
 function renderJourneysModule() {
-  const js = state.data.otpJourneys.features.map(f => f.properties);
-  const mean = k => js.reduce((a, p) => a + p[k], 0) / js.length;
-  updateToolbar(toolbarTitle('Door-to-door trips', '10 modelled transit trips; lines are schematic'));
+  updateToolbar(toolbarTitle('Trip times', '10 estimated transit trips; lines are straight, not the real routes'));
   updateLegend(legendBox('Trips', [
-    legendRow(line(C.orange), 'Fresh Meadows → Midtown East (55.6 min)'),
-    legendRow(line(C.brown), 'Rosedale → Lower Manhattan (61.9 min)'),
-    legendRow(line(C.dark), 'Throggs Neck → Grand Central (71.2 min)'),
-    legendRow(line(C.steel), 'Seven other trips')
-  ], 'Straight lines join start and end. They are schematic, not the actual bus, subway or rail routes.'));
-  updateDrawerHeader('Walking and waiting add about 13–22 minutes', 'Modelled trips on the fall 2026 schedule, not observed commutes', 'Journeys');
+    legendRow(line(C.orange), 'Fresh Meadows to Midtown East (55.6 min)'),
+    legendRow(line(C.brown), 'Rosedale to Lower Manhattan (61.9 min)'),
+    legendRow(line(C.dark), 'Throggs Neck to Grand Central (71.2 min)'),
+    legendRow(line(C.steel), 'Seven other trips, for comparison')
+  ], 'Each line joins the start and the end of a trip. It does not follow the bus, train or subway route.'));
+  updateDrawerHeader('From these areas, a transit trip to Manhattan takes about an hour, and 13 to 22 minutes of it is walking and waiting',
+    'Estimated trips leaving at 8 a.m. on a Wednesday, using the fall 2026 timetable. These are modelled times, not measured commutes.', 'Trip times');
   updateKPIs([
-    { label: 'Trips modelled', val: String(js.length), sub: 'across the outer boroughs' },
-    { label: 'Average trip', val: mean('total_min').toFixed(1) + ' min', sub: 'door to door' },
-    { label: 'Average walking', val: mean('walk_min').toFixed(1) + ' min', sub: (100 * mean('walk_min') / mean('total_min')).toFixed(0) + '% of the trip' },
-    { label: 'Average riding', val: mean('in_vehicle_min').toFixed(1) + ' min', sub: 'on buses, trains and subway' }
+    { label: 'Fresh Meadows to Midtown East', val: '55.6 min', sub: '20.2 min walking and waiting' },
+    { label: 'Rosedale to Lower Manhattan', val: '61.9 min', sub: '22.4 min walking and waiting' },
+    { label: 'Throggs Neck to Grand Central', val: '71.2 min', sub: '12.7 min walking and waiting' },
+    { label: 'Biggest single delay', val: '17.7 min', sub: 'walking, in Fresh Meadows' }
   ]);
   renderChart('bar', {
     labels: ['Fresh Meadows', 'Rosedale', 'Throggs Neck'],
     datasets: [
-      { label: 'Walk', data: [17.7, 18.9, 8.4], backgroundColor: C.orange },
-      { label: 'Wait', data: [2.5, 3.5, 4.3], backgroundColor: C.brown },
+      { label: 'Walking', data: [17.7, 18.9, 8.4], backgroundColor: C.orange },
+      { label: 'Waiting', data: [2.5, 3.5, 4.3], backgroundColor: C.brown },
       { label: 'Bus', data: [6.9, 0, 16.0], backgroundColor: C.steel },
-      { label: 'Train / subway', data: [28.5, 39.5, 42.5], backgroundColor: C.dark }
+      { label: 'Train or subway', data: [28.5, 39.5, 42.5], backgroundColor: C.dark }
     ]
-  }, 'Where the time goes (minutes)', 'Trip planner model', { indexAxis: 'y', stacked: true });
-  setPolicyNote('In Fresh Meadows, walking is 17.7 of 55.6 minutes and the Q30 ride only 6.9. Bus lanes alone would save little there; shorter walks and easier transfers matter more.');
+  }, 'Where the time goes (minutes)', 'Trip-planner model', { indexAxis: 'y', stacked: true });
+  setPolicyNote('');
 }
 
 // MODULE 9: Model test on Union Turnpike
@@ -784,6 +811,7 @@ function centroidOfTract(geoid) {
   return f ? L.geoJSON(f).getBounds().getCenter() : null;
 }
 
+const ORIGIN_NAMES = { O1_FRESH_MEADOWS_188: '188th Street', O2_UTOPIA_PKWY: 'Utopia Parkway', O3_CUNNINGHAM_PARK: 'Cunningham Park', O4_OAKLAND_GARDENS: 'Oakland Gardens', O5_HILLCREST_ST_JOHNS: 'Hillcrest', O6_GLEN_OAKS_LIJ: 'Glen Oaks' };
 function renderScenariosModule() {
   const rows = state.data.stage5Matrix;
   const uniq = (key, label) => [...new Map(rows.map(r => [r[key], r[label]])).entries()];
@@ -792,23 +820,24 @@ function renderScenariosModule() {
   const times = [...new Set(rows.map(r => r.departure_window))];
   const opt = (pairs, cur) => pairs.map(([v, t]) => `<option value="${v}" ${v === cur ? 'selected' : ''}>${t}</option>`).join('');
   const short = t => t.split(' (')[0];
+  const ON = ORIGIN_NAMES;
 
   updateToolbar(`
-    ${toolbarTitle('Model test')}
+    ${toolbarTitle('What-if test')}
     <label class="flex items-center gap-1 text-slate-700 whitespace-nowrap"><span>From</span>
-      <select id="scenario-origin" onchange="updateScenarioSelection()" class="bg-white border border-slate-300 px-1.5 py-1 text-xs">${opt(origins.map(([v, t]) => [v, short(t)]), state.selectedOD.origin)}</select></label>
+      <select id="scenario-origin" onchange="updateScenarioSelection()" class="bg-white border border-slate-300 px-1.5 py-1 text-xs">${opt(origins.map(([v, t]) => [v, ON[v] || short(t)]), state.selectedOD.origin)}</select></label>
     <label class="flex items-center gap-1 text-slate-700 whitespace-nowrap"><span>To</span>
       <select id="scenario-dest" onchange="updateScenarioSelection()" class="bg-white border border-slate-300 px-1.5 py-1 text-xs">${opt(dests.map(([v, t]) => [v, short(t)]), state.selectedOD.destination)}</select></label>
     <label class="flex items-center gap-1 text-slate-700 whitespace-nowrap"><span>Leaving</span>
       <select id="scenario-time" onchange="updateScenarioSelection()" class="bg-white border border-slate-300 px-1.5 py-1 text-xs">${opt(times.map(t => [t, ({'AM Peak Early (07:30 AM)': '7:30 a.m.', 'AM Peak Core (08:00 AM)': '8:00 a.m.', 'AM Peak Late (08:30 AM)': '8:30 a.m.', 'Midday Off-Peak (12:00 PM)': 'Noon'})[t] || t]), state.selectedOD.time)}</select></label>
   `);
-  updateLegend(legendBox('Union Turnpike model test', [
+  updateLegend(legendBox('Union Turnpike what-if test', [
     legendRow(dot(C.orange), 'Selected starting point'),
     legendRow(dot(C.grey), 'Other starting points (6 in all)'),
     legendRow(dot(C.dark), 'Manhattan destination'),
-    legendRow(line(C.orange, true), 'Trip shown in the panel (schematic line)')
-  ], '6 starting points × 3 destinations × 4 departure times = 72 trips.'));
-  updateDrawerHeader('Model test: faster buses and an easier transfer', 'From six Union Turnpike origins to Midtown East at 8 a.m., trips are 6.2–12.5 minutes shorter. Other destinations and times differ; pick them above. A what-if model, not observed results.', 'Model test');
+    legendRow(line(C.orange, true), 'Trip shown in the panel (straight line, not the real route)')
+  ], 'Same test in Throggs Neck: about 3.7 minutes saved (5%), because the bus is only 16 of the 71 minutes there.'));
+  updateDrawerHeader('A faster bus saves the most time on Union Turnpike: 6 to 12.5 minutes a trip, against about 4 in Throggs Neck', 'What-if test: the Union Turnpike bus runs 30% faster and the Kew Gardens transfer takes 3 minutes less. Pick a starting point, destination and time above. It shows time saved, not how many drivers would switch.', 'What-if test');
 
   // map: starting points and destinations from census tract centres
   lgScenarios.clearLayers();
@@ -817,7 +846,7 @@ function renderScenariosModule() {
     const r = rows.find(x => x.origin_id === id) ? rows.find(x => x.origin_id === id) : rows.find(x => x.dest_id === id);
     const tract = r.origin_id === id ? r.origin_tract : r.dest_tract;
     const c = centroidOfTract(tract);
-    if (c) state.scenarioPts[id] = { c, name };
+    if (c) state.scenarioPts[id] = { c, name: ON[id] || short(name) };
   });
   map.addLayer(lgScenarios);
   updateScenarioSelection();
@@ -852,39 +881,62 @@ function updateScenarioSelection() {
   }
 
   updateKPIs([
-    { label: 'Today (modelled)', val: `${match.s0_total_journey_min.toFixed(1)} min`, sub: 'door to door' },
-    { label: 'Faster buses only', val: `${match.s1_total_journey_min.toFixed(1)} min`, sub: `saves ${match.s1_feeder_saving_min.toFixed(1)} min` },
-    { label: 'Easier transfer only', val: `${match.s2_total_journey_min.toFixed(1)} min`, sub: `saves ${match.s2_transfer_saving_min.toFixed(1)} min` },
+    { label: 'Today (estimated)', val: `${match.s0_total_journey_min.toFixed(1)} min`, sub: 'door to door' },
+    { label: 'Bus 30% faster', val: `${match.s1_total_journey_min.toFixed(1)} min`, sub: `saves ${match.s1_feeder_saving_min.toFixed(1)} min` },
+    { label: 'Transfer 3 min shorter', val: `${match.s2_total_journey_min.toFixed(1)} min`, sub: `saves ${match.s2_transfer_saving_min.toFixed(1)} min` },
     { label: 'Both together', val: `${match.s3_total_journey_min.toFixed(1)} min`, sub: `saves ${match.s3_total_time_saving_min.toFixed(1)} min (${match.s3_pct_improvement.toFixed(1)}%)` }
   ]);
   renderChart('bar', {
-    labels: ['Today', 'Faster buses', 'Easier transfer', 'Both'],
+    labels: ['Today', 'Faster bus', 'Easier transfer', 'Both'],
     datasets: [{ label: 'Door-to-door minutes', data: [match.s0_total_journey_min, match.s1_total_journey_min, match.s2_total_journey_min, match.s3_total_journey_min],
       backgroundColor: [C.grey, C.steel, C.steel, C.orange] }]
-  }, `${match.origin_name.split(' (')[0]} → ${match.dest_name.split(' (')[0]}`, 'Model test');
-  setPolicyNote('To Grand Central in the 8 a.m. peak, savings run from 6.2 to 12.5 minutes (average 8.7 minutes, 13.5%). Across all 72 trips the range is 10.3% to 16.5%. This is a model, not a forecast of ridership.');
+  }, `${ORIGIN_NAMES[match.origin_id] || match.origin_name.split(' (')[0]} to ${match.dest_name.split(' (')[0]}`, 'What-if test');
+  setPolicyNote('');
 }
 
-// MODULE 10: Solutions
+// MODULE 8: What to do
+const FIXES = {
+  C04: { name: 'Union Turnpike bus and Kew Gardens transfer', place: 'Eastern Queens', phase: 'Phase 1 (start here)',
+    problem: 'A long bus ride (14 to 41 minutes) and an 8-minute change to the subway at Kew Gardens.',
+    fix: 'Bus lanes and traffic signals that give buses priority on Union Turnpike, and a sheltered transfer at Kew Gardens.',
+    why: 'In a what-if test, trips to Midtown East are 6.2 to 12.5 minutes shorter (8.7 minutes on average).',
+    check: 'How many drivers would switch. The pilot would measure this against Hillside Avenue, a road left unchanged.' },
+  C01: { name: 'Fresh Meadows: safer, shorter walks to the bus', place: 'Eastern Queens', phase: 'Phase 1 (start here)',
+    problem: 'Walking takes 17.7 of the 55.6 minutes. The bus is on time and the ride is only 6.9 minutes.',
+    fix: 'Safer, shorter walking routes to the bus stops, and better shelters.',
+    why: 'Walking is the biggest part of the delay here, so a faster bus alone would not help much.',
+    check: 'The bus speed, which is not tracked yet.' },
+  C02: { name: 'Throggs Neck: bus lane on Crosby Avenue', place: 'East Bronx', phase: 'Phase 2',
+    problem: 'A slow, often late local bus: 7.9 mph and on time 67% of the time at peak.',
+    fix: 'A bus lane and traffic signals that give buses priority on Crosby Avenue.',
+    why: 'The East Bronx has the most people driving alone (57%). But the bus is only 16 of the 71 minutes, so the same test saves about 3.7 minutes.',
+    check: 'Current (2026) bus speeds, before building.' },
+  C03: { name: 'Rosedale: covered transfer and a cheaper fare', place: 'Southeast Queens', phase: 'Phase 2',
+    problem: 'An 8.5-minute outdoor walk between the Long Island Rail Road and the A train at Nostrand Avenue, and a second fare.',
+    fix: 'A covered walkway between the two stations, and a cheaper transfer fare.',
+    why: 'The train ride is fast (27 minutes). The change between trains is the barrier.',
+    check: 'How many riders would use the link.' }
+};
 function renderSolutionsModule() {
-  updateToolbar(toolbarTitle('What to do first', 'Four candidate corridors, each to be tested first'));
-  updateLegend(legendBox('Candidate corridors', [
-    legendRow(line(C.orange), 'C04 Union Turnpike buses + Kew Gardens (start here)'),
-    legendRow(line(C.brick), 'C01 Fresh Meadows → Midtown'),
-    legendRow(line(C.dark), 'C02 Throggs Neck → Midtown'),
-    legendRow(line(C.steel), 'C03 Rosedale → Lower Manhattan')
-  ], 'Straight schematic lines from start to end, not actual routes. Click one for the problem, the fix and what still needs measuring.'));
-  updateDrawerHeader('Start in Eastern Queens, then measure the Q30 and Bx8', 'Proposals to test; none approved yet', 'What to do first');
+  updateToolbar(toolbarTitle('What to do', 'Four fixes in three areas; lines are straight, not the real routes'));
+  updateLegend(legendBox('Fixes', [
+    legendRow(line(C.orange), 'Union Turnpike bus and Kew Gardens transfer (Phase 1)'),
+    legendRow(line(C.brick), 'Fresh Meadows walks to the bus (Phase 1)'),
+    legendRow(line(C.dark), 'Throggs Neck bus lane (Phase 2)'),
+    legendRow(line(C.steel), 'Rosedale covered transfer and fare (Phase 2)')
+  ], 'Click a line to see the problem, the fix and what still needs checking.'));
+  updateDrawerHeader('Each area needs a different fix: start in Eastern Queens, then the East Bronx and Southeast Queens',
+    'Eastern Queens has the most residents working in the zone, and a faster bus saves the most time there. We ask for three decisions.', 'What to do');
   updateKPIs([
-    { label: 'Candidate corridors', val: '4', sub: 'all proposed for testing' },
-    { label: 'Modelled so far', val: '1', sub: 'Union Tpke → Midtown East, 8 a.m.: 8.7 min average' },
-    { label: 'First pilot', val: 'Union Tpke', sub: 'Q46 bus lanes + Kew Gardens transfer' },
-    { label: 'Measure first', val: 'Q30, Bx8', sub: 'speed and reliability' }
+    { label: 'Decision 1', val: 'Approve Phase 1', sub: 'Union Turnpike bus, Fresh Meadows walks, Kew Gardens transfer' },
+    { label: 'Decision 2', val: 'Track both buses', sub: 'Fresh Meadows and Throggs Neck, every month' },
+    { label: 'Decision 3', val: 'Agree the yardstick', sub: 'trip time, riders, car entries, emissions, against Hillside Avenue' },
+    { label: 'Phase 2', val: 'East Bronx, Southeast Queens', sub: 'after Phase 1 is reviewed' }
   ]);
   renderChart('bar', {
     labels: ['Eastern Queens', 'East Bronx', 'Southeast Queens'],
     datasets: [{ label: 'Residents working in the zone', data: [2649, 1454, 651], backgroundColor: [C.orange, C.grey, C.grey] }]
-  }, 'Zone jobs held by residents of each candidate area', 'US Census, 2023');
+  }, 'Residents of each area who work in the zone', 'U.S. Census, 2023');
   setPolicyNote('');
 }
 
@@ -902,7 +954,7 @@ function inspectCRZGeofence() {
   document.getElementById('inspect-content').innerHTML = `
     <div class="font-bold text-purple-900 text-sm">Congestion pricing zone</div>
     <div class="text-[11px] text-slate-700 mt-1">Manhattan south of 60th Street. The FDR Drive, West Side Highway and Hugh L. Carey Tunnel connections are not tolled.</div>
-    <div class="text-[11px] text-slate-700 mt-1">First six months: <strong>~67,000 fewer daily entries (-11%)</strong> compared to baseline.</div>
+    <div class="text-[11px] text-slate-700 mt-1">First six months: <strong>about 67,000 fewer vehicles a day (11% fewer)</strong>.</div>
     <div class="text-[11px] text-slate-700 mt-1">Crossing counts, 2025 weekday total: <strong>511,829</strong>.</div>
   `;
 }
@@ -931,10 +983,10 @@ function inspectTrafficLink(p, tb) {
   const days24 = tb ? tb.days_2024 : p.am_days_2024;
   const days25 = tb ? tb.days_2025 : p.am_days_2025;
 
-  document.getElementById('inspect-type').innerText = 'Highway road';
+  document.getElementById('inspect-type').innerText = 'Highway stretch';
   document.getElementById('inspect-content').innerHTML = `
     <div class="font-bold text-slate-900 text-sm">${p.link_name}</div>
-    <div class="text-[11px] text-slate-600">Link ID: ${p.link_id} | Borough: ${p.borough}</div>
+    <div class="text-[11px] text-slate-600">${p.borough} (NYC DOT stretch ${p.link_id})</div>
     <div class="border-t border-slate-100 my-1.5 pt-1 text-[11px] space-y-1">
       <div>2024 speed: <strong>${s24 !== null ? s24.toFixed(2) + ' mph' : 'N/A'}</strong> (${days24} days)</div>
       <div>2025 speed: <strong>${s25 !== null ? s25.toFixed(2) + ' mph' : 'N/A'}</strong> (${days25} days)</div>
@@ -987,56 +1039,59 @@ function inspectSubwayStation(p) {
 }
 
 function inspectBusRoute(b) {
-  document.getElementById('inspect-type').innerText = 'Bus route';
+  document.getElementById('inspect-type').innerText = 'Bus';
   document.getElementById('inspect-content').innerHTML = `
     <div class="font-bold text-slate-900 text-sm">${b.name}</div>
-    <div class="text-[11px] text-slate-600 mt-1">Borough: ${b.borough}</div>
-    ${b.isGap ? `
-      <div class="p-2 bg-amber-50 border border-amber-200 rounded text-amber-900 text-[11px] mt-2 space-y-1">
-        <div class="font-bold">Not measured yet</div>
-        <div>Route ${b.id} is <strong>not monitored</strong> in the MTA August 2026 29-route speed file.</div>
-        <div>There are no speed or reliability figures for this route, so measure it before planning fixes.</div>
-      </div>
-    ` : `
-      <div class="border-t border-slate-100 my-1.5 pt-1 text-[11px] space-y-1">
-        <div>Morning peak speed: <strong>${b.speed.toFixed(2)} mph</strong></div>
-        <div>Buses evenly spaced (wait assessment): <strong>${b.wait.toFixed(1)}%</strong></div>
-        <div class="text-slate-500 text-[10px]">Source: MTA bus speeds and wait assessment, August 2026. Route line is approximate.</div>
-      </div>
-    `}
+    <div class="text-[11px] text-slate-600 mt-0.5">${b.area}</div>
+    <div class="border-t border-slate-100 my-1.5 pt-1 text-[12px] space-y-1">
+      <div>Average morning speed: <strong>${b.speed == null ? 'not in the data' : b.speed.toFixed(1) + ' mph'}</strong>${b.speedNote ? ' (' + b.speedNote + ')' : ''}</div>
+      <div>On time at peak: <strong>${b.wait.toFixed(0)}%</strong> (MTA target 70%)</div>
+      <div class="text-slate-700 pt-1">${b.meaning}</div>
+      <div class="text-slate-500 text-[11px] pt-1">The dot marks one point on the route, for location only.</div>
+    </div>
   `;
 }
 
+const LEG_MODE = { WALK: 'Walk', BUS: 'Bus', SUBWAY: 'Subway', RAIL: 'Long Island Rail Road', FERRY: 'Ferry' };
+const BUS_NAME = { Q30: 'Fresh Meadows bus', BX8: 'Throggs Neck bus', Q46: 'Union Turnpike bus' };
+function titleCase(s) { return s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()).replace(/\bSt\b/g, 'Street').replace(/\bAv\b/g, 'Avenue').replace(/\bPkwy\b/g, 'Parkway').replace(/\bExpwy\b/g, 'Expressway').replace(/\bBlvd\b/g, 'Boulevard').replace(/\bRd\b/g, 'Road'); }
+function readableLegs(summary) {
+  return (summary || '').split(' | ').map(leg => {
+    const m = leg.match(/^(\w+)(?: \(([^)]+)\))?: ([\d.]+)m \[(.+?) -> (.+?)\]$/);
+    if (!m) return leg;
+    let mode = LEG_MODE[m[1]] || titleCase(m[1]);
+    if (m[1] === 'BUS') mode = BUS_NAME[(m[2] || '').toUpperCase()] || 'Local bus';
+    if (m[1] === 'SUBWAY' && m[2]) mode = m[2].replace(/X$/, '') + ' train';
+    const from = m[4] === 'Origin' ? 'start' : titleCase(m[4]);
+    const to = m[5] === 'Destination' ? 'destination' : titleCase(m[5]);
+    return `${mode}: ${m[3]} min, ${from} to ${to}`;
+  }).join('<br>');
+}
 function inspectJourney(p) {
   document.getElementById('inspect-type').innerText = 'Trip';
   document.getElementById('inspect-content').innerHTML = `
-    <div class="font-bold text-slate-900 text-sm">${p.market_id}: ${p.market_name}</div>
-    <div class="text-[11px] text-slate-700 mt-1">Door to door: <strong>${p.total_min} minutes</strong></div>
-    <div class="border-t border-slate-100 my-1.5 pt-1 text-[11px] space-y-1">
-      <div>Walking: <strong>${p.walk_min} min</strong> (${((p.walk_min / p.total_min) * 100).toFixed(1)}%)</div>
+    <div class="font-bold text-slate-900 text-sm">${p.market_name.replace(' to ', ' to ')}</div>
+    <div class="text-[12px] text-slate-700 mt-1">Door to door: <strong>${p.total_min} minutes</strong></div>
+    <div class="border-t border-slate-100 my-1.5 pt-1 text-[12px] space-y-1">
+      <div>Walking: <strong>${p.walk_min} min</strong> (${((p.walk_min / p.total_min) * 100).toFixed(0)}% of the trip)</div>
       <div>Waiting: <strong>${p.wait_min} min</strong></div>
       <div>Riding: <strong>${p.in_vehicle_min} min</strong></div>
-      <div class="text-[10px] text-slate-500 pt-1 leading-normal">
-        <strong>Legs:</strong><br>${p.legs_summary}
-      </div>
+      <div class="text-[11px] text-slate-600 pt-1 leading-normal"><strong>Each part of the trip</strong><br>${readableLegs(p.legs_summary)}</div>
     </div>
   `;
 }
 
 function inspectSolution(p) {
-  document.getElementById('inspect-type').innerText = 'Corridor';
+  const f = FIXES[p.corridor_id] || {};
+  document.getElementById('inspect-type').innerText = f.phase || 'Fix';
   document.getElementById('inspect-content').innerHTML = `
-    <div class="font-bold text-slate-900 text-sm">${p.corridor_id}: ${p.name}</div>
-    <div class="text-[11px] text-slate-600 mt-0.5"><strong>Origin:</strong> ${p.origin}</div>
-    <div class="text-[11px] text-slate-600"><strong>Destination:</strong> ${p.destination}</div>
-    <div class="border-t border-slate-100 my-1.5 pt-1 text-[11px] space-y-1.5">
-      <div><strong>The problem:</strong><br><span class="text-slate-700">${p.difficulty}</span></div>
-      <div><strong>What to build:</strong><br><span class="text-slate-800 font-medium">${p.proposed_response}</span></div>
-      <div><strong>Why it helps:</strong><br><span class="text-slate-700">${p.why_helps}</span></div>
-      <div class="text-amber-800 bg-amber-50 p-1.5 rounded border border-amber-200">
-        <strong>Still to measure:</strong><br>${p.missing_evidence}
-      </div>
-      <div class="text-[10px] uppercase font-bold text-slate-500">Status: proposed for testing, not approved</div>
+    <div class="font-bold text-slate-900 text-sm">${f.name || p.name}</div>
+    <div class="text-[11px] text-slate-600 mt-0.5">${f.place || ''}</div>
+    <div class="border-t border-slate-100 my-1.5 pt-1 text-[12px] space-y-1.5">
+      <div><strong>The problem</strong><br><span class="text-slate-700">${f.problem}</span></div>
+      <div><strong>What to build</strong><br><span class="text-slate-800">${f.fix}</span></div>
+      <div><strong>Why it helps</strong><br><span class="text-slate-700">${f.why}</span></div>
+      <div class="bg-[#f5f5f5] p-1.5"><strong>Still to check</strong><br>${f.check}</div>
     </div>
   `;
 }
@@ -1187,10 +1242,9 @@ function toggleDrawer() {
   setTimeout(() => map.invalidateSize(), 320);
 }
 
-// Step-by-step navigation through the ten views
-const STEPS = [['overview', 'Overview'], ['congestion', 'Congestion pricing'], ['traffic', 'Highway speeds'], ['origins', 'Who travels'],
-  ['buses', 'Bus speeds'], ['journeys', 'Door-to-door trips'],
-  ['scenarios', 'Model test'], ['solutions', 'What to do first']];
+// Step-by-step navigation through the eight views
+const STEPS = [['overview', 'Overview'], ['congestion', 'Traffic fell'], ['traffic', 'Highway speeds'], ['origins', 'Who travels'],
+  ['journeys', 'Trip times'], ['buses', 'Local buses'], ['scenarios', 'What-if test'], ['solutions', 'What to do']];
 function renderStepNav(modId) {
   const el = document.getElementById('step-nav');
   if (!el) return;
@@ -1206,10 +1260,7 @@ function renderStepNav(modId) {
   if (tab && tab.scrollIntoView) tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   const body = document.getElementById('drawer-body');
   if (body) body.scrollTop = 0;
-  const ic = document.getElementById('inspect-content');
-  if (ic) ic.innerHTML = '<p class="text-slate-500">Hover over the map to preview. Click a shape to show its numbers here.</p>';
-  const it = document.getElementById('inspect-type');
-  if (it) it.innerText = '';
+  clearSelection();
 }
 
 // Start Application on Load

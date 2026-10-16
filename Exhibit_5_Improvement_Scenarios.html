@@ -319,11 +319,11 @@
   </style>
 </head>
 <body>
-  <header class="topbar"><div class="in"><a class="home" href="index.html">&larr; <span>Overview</span></a><nav class="pager" aria-label="Exhibits"><a href="Exhibit_1_Congestion_Pricing.html" title="Traffic fell">1</a><a href="Exhibit_2_Highway_Speeds.html" title="Highway speeds">2</a><a href="Exhibit_3_Travel_Origins.html" title="Who travels">3</a><a href="Exhibit_4_Transit_Journeys.html" title="Why transit is slow">4</a><a href="Exhibit_5_Improvement_Scenarios.html" class="on" aria-current="page" title="Model test">5</a><a href="Exhibit_6_Government_Decision.html" title="What to fund">6</a></nav></div></header>
+  <header class="topbar"><div class="in"><a class="home" href="index.html">&larr; <span>Overview</span></a><nav class="pager" aria-label="Exhibits"><a href="Exhibit_1_Congestion_Pricing.html" title="Traffic fell">1</a><a href="Exhibit_2_Highway_Speeds.html" title="Highway speeds">2</a><a href="Exhibit_3_Travel_Origins.html" title="Who travels">3</a><a href="Exhibit_4_Transit_Journeys.html" title="Where trip time goes">4</a><a href="Exhibit_5_Improvement_Scenarios.html" class="on" aria-current="page" title="What-if test">5</a><a href="Exhibit_6_Government_Decision.html" title="What to do">6</a></nav></div></header>
   <div class="page">
-    <p class="eyebrow">Exhibit 5 &middot; Union Turnpike model test</p>
-    <h1>In a model test, faster buses and an easier transfer save 6.2&ndash;12.5 minutes a trip</h1>
-    <p class="lede">Six origins along Union Turnpike to Midtown East (Grand Central), leaving at 8 a.m. Other destinations and times give different results. The test assumes the Q46 feeder runs 30% faster and transfers take 3 minutes less.</p>
+    <p class="eyebrow">Exhibit 5 &middot; Union Turnpike what-if test</p>
+    <h1>A faster bus saves the most time on Union Turnpike: 6 to 12.5 minutes a trip, against about 4 in Throggs Neck</h1>
+    <p class="lede">Six starting points along Union Turnpike to Midtown East (Grand Central), leaving at 8 a.m. The test assumes the Union Turnpike bus runs 30% faster and the change to the subway takes 3 minutes less. Other destinations and times give different results.</p>
 
     <div class="grid two">
       <div class="panel">
@@ -342,21 +342,21 @@
         <ul>
           <li>Savings range from 6.2 min (Hillcrest) to 12.5 min (Glen Oaks): 12&ndash;15% of each trip, 8.7 min on average.</li>
           <li>Faster buses save 3.2&ndash;9.5 min (more for longer bus rides); the easier transfer saves 3.0 min on every trip.</li>
-          <li>Trips still take 46&ndash;70 minutes, so transit becomes more competitive, not fast.</li>
+          <li>The same test in Throggs Neck saves about 3.7 minutes (5%), because the bus is only 16 of the 71 minutes there.</li>
         </ul>
       </div>
       <div class="panel">
-        <h2 class="label-care">Read with care</h2>
+        <h2 class="label-care">What this does not show</h2>
         <ul>
-          <li>This is a what-if model, not a measured result or a ridership forecast.</li>
-          <li>It covers the Q46 on Union Turnpike, not the Fresh Meadows (Q30) walking problem.</li>
-          <li>Bus lanes and signal priority are assumed to cut bus time by about 23%.</li>
+          <li>How many drivers would switch. This is a what-if estimate, not a forecast of riders.</li>
+          <li>The walk to the bus in Fresh Meadows. Only the Union Turnpike bus is tested.</li>
+          <li>Trips still take 46 to 70 minutes after the change.</li>
         </ul>
       </div>
     </section>
 
-    <p class="source">Source: Stage 5 multi-origin scenario model (stage5_od_scenario_results.csv); OpenTripPlanner baselines.</p>
-    <nav class="prevnext"><a class="prev" href="Exhibit_4_Transit_Journeys.html"><small>&larr; Exhibit 4</small><b>Why transit is slow</b></a><a class="next" href="Exhibit_6_Government_Decision.html"><small>Exhibit 6 &rarr;</small><b>What to fund</b></a></nav>
+    <p class="source">Source: what-if calculation on trip-planner estimates (OpenTripPlanner, MTA fall 2026 timetables). Throggs Neck uses the bus speed-up only, because its change to the train is a 3-minute walk.</p>
+    <nav class="prevnext"><a class="prev" href="Exhibit_4_Transit_Journeys.html"><small>&larr; Exhibit 4</small><b>Where trip time goes</b></a><a class="next" href="Exhibit_6_Government_Decision.html"><small>Exhibit 6 &rarr;</small><b>What to do</b></a></nav>
   </div>
   <script>
     Chart.defaults.font.family = 'Arial, Helvetica, sans-serif';
@@ -387,8 +387,8 @@
       data: {
         labels: labels,
         datasets: [
-          { label: 'Today (modelled)', data: [52.3, 55.3, 59.9, 63.7, 70.0, 82.0], backgroundColor: COLORS.grey, borderRadius: 0 },
-          { label: 'With faster buses and easier transfer', data: [46.1, 48.3, 52.0, 55.0, 60.1, 69.5], backgroundColor: COLORS.ochre, borderRadius: 0 }
+          { label: 'Today (estimated)', data: [52.3, 55.3, 59.9, 63.7, 70.0, 82.0], backgroundColor: COLORS.grey, borderRadius: 0 },
+          { label: 'With a faster bus and an easier transfer', data: [46.1, 48.3, 52.0, 55.0, 60.1, 69.5], backgroundColor: COLORS.ochre, borderRadius: 0 }
         ]
       },
       options: {
@@ -403,8 +403,8 @@
       data: {
         labels: labels,
         datasets: [
-          { label: 'Faster buses (+30% speed)', data: [3.2, 4.0, 4.9, 5.6, 6.9, 9.5], backgroundColor: COLORS.navy },
-          { label: 'Easier transfer (\u22123 min)', data: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0], backgroundColor: COLORS.grey }
+          { label: 'Bus 30% faster', data: [3.2, 4.0, 4.9, 5.6, 6.9, 9.5], backgroundColor: COLORS.navy },
+          { label: 'Transfer 3 minutes shorter', data: [3.0, 3.0, 3.0, 3.0, 3.0, 3.0], backgroundColor: COLORS.grey }
         ]
       },
       options: {
